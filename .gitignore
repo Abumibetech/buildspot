@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+db.sqlite3
+media/
+staticfiles/
+
+*.before_pwa_install
+*.location-backup
+buildspot_backend_code.txt
+buildspot_remaining_code.txt
+# Local backup files
+*.bak
+*.before_pwa_install
+*.location-backup

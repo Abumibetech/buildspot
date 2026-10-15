@@ -1,0 +1,4 @@
+from django.urls import path
+from django.contrib.auth import views as auth_views
+from . import views
+urlpatterns = [path("",views.home,name="home"),path("market/",views.market_list,name="market"),path("seller/join/",views.signup,name="signup"),path("seller/dashboard/",views.seller_dashboard,name="seller_dashboard"),path("seller/products/add/",views.product_add,name="product_add"),path("seller/products/<int:pk>/edit/",views.product_edit,name="product_edit"),path("seller/products/<int:pk>/delete/",views.product_delete,name="product_delete"),path("login/",auth_views.LoginView.as_view(template_name="market/login.html"),name="login"),path("logout/",auth_views.LogoutView.as_view(),name="logout"),path("stores/<slug:slug>/",views.store_detail,name="store_detail"),path("stores/<slug:store_slug>/products/<slug:product_slug>/",views.product_detail,name="product_detail")]
