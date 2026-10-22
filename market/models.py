@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
+import re
 
 class Store(models.Model):
     VERIFICATION = [("pending","Pending"),("verified","Verified"),("rejected","Rejected")]
@@ -20,6 +21,17 @@ class Store(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     def __str__(self): return self.business_name
     def get_absolute_url(self): return reverse("store_detail", args=[self.slug])
+
+    @property
+    def whatsapp_link_number(self):
+        """Return a WhatsApp-compatible number using digits only."""
+        number = re.sub(r"\D", "", self.whatsapp or "")
+        if number.startswith("00"):
+            number = number[2:]
+        if number.startswith("0"):
+            number = "234" + number[1:]
+        return number
+
 
 class Category(models.Model):
     name = models.CharField(max_length=80, unique=True)

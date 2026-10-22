@@ -30,3 +30,1501 @@ body.dark .install-btn {
     background: #ffffff;
     color: #111111 !important;
 }
+
+/* ==================================================
+   BUILDSPOT SELLER WORKSPACE — DESIGN ENHANCEMENT
+   ================================================== */
+
+.dashboard-head {
+    background:
+        linear-gradient(115deg, #fff3e5 0%, #fffaf4 65%, #ffead4 100%);
+    border: 1px solid #ffdec0;
+    border-radius: 22px;
+    padding: 38px;
+    margin: 28px auto 0;
+}
+
+.dashboard-head .eyebrow {
+    color: #e65b0b;
+    font-weight: 800;
+    letter-spacing: 1.8px;
+}
+
+.dashboard-head h1 {
+    color: #142b3a;
+}
+
+.dashboard-head h1 em {
+    color: #f26716;
+    font-style: normal;
+}
+
+.dashboard-head p {
+    color: #526171;
+}
+
+.dashboard-head .button-orange,
+.dashboard-panel .button-orange {
+    box-shadow: 0 7px 18px #ed681c26;
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.dashboard-head .button-orange:hover,
+.dashboard-panel .button-orange:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px #ed681c38;
+}
+
+.dashboard-stats {
+    background: #fff8f0;
+    border: 1px solid #ffe4cd;
+    border-radius: 18px;
+    margin-top: 18px;
+}
+
+.dashboard-stats > div {
+    background: #ffffff;
+    border: 1px solid #f4dfce;
+    border-radius: 14px;
+    padding: 20px;
+}
+
+.dashboard-stats small {
+    color: #8b5a39;
+    letter-spacing: 1px;
+    font-weight: 800;
+}
+
+.dashboard-stats strong {
+    color: #172e3d;
+}
+
+.dashboard-layout {
+    background: #fff8f1;
+    border: 1px solid #f8e4d2;
+    border-radius: 22px;
+    margin-top: 20px;
+    padding: 24px;
+}
+
+.dashboard-panel {
+    background: #ffffff;
+    border: 1px solid #f0dfd1;
+    border-radius: 18px;
+    box-shadow: 0 8px 25px #38200d0a;
+    padding: 24px;
+}
+
+.dashboard-panel .panel-heading {
+    border-bottom: 1px solid #f2e6dc;
+    padding-bottom: 17px;
+    margin-bottom: 20px;
+}
+
+.dashboard-panel .panel-heading h2 {
+    color: #172e3d;
+}
+
+.dashboard-panel .panel-heading p {
+    color: #687686;
+}
+
+.dashboard-panel .form-field input,
+.dashboard-panel .form-field textarea,
+.dashboard-panel .form-field select {
+    border-radius: 10px;
+    border: 1px solid #dfd7d0;
+    padding: 12px 13px;
+    background: #fffdfa;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.dashboard-panel .form-field input:focus,
+.dashboard-panel .form-field textarea:focus,
+.dashboard-panel .form-field select:focus {
+    border-color: #f26716;
+    box-shadow: 0 0 0 3px #f267161c;
+    outline: none;
+}
+
+.dashboard-panel input[type="file"] {
+    background: #fff3e7;
+    border: 1px dashed #f2a16e;
+    border-radius: 12px;
+    padding: 14px;
+    max-width: 100%;
+}
+
+.dashboard-panel .manage-item {
+    border-bottom: 1px solid #f1e6dc;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+.dashboard-panel .manage-placeholder {
+    background: #fff0e2;
+    color: #e65b0b;
+    border-radius: 12px;
+}
+
+.dashboard-panel .enquiry-row {
+    background: #fffaf5;
+    border: 1px solid #f2e4d7;
+    border-radius: 13px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.dashboard-panel .empty-inline {
+    background: #fff8f1;
+    border: 1px dashed #edc9ad;
+    border-radius: 13px;
+    padding: 22px;
+}
+
+/* Keep the seller workspace attractive in dark mode. */
+.dark .dashboard-head {
+    background: linear-gradient(115deg, #20170f, #151820 75%);
+    border-color: #493020;
+}
+
+.dark .dashboard-head h1,
+.dark .dashboard-stats strong,
+.dark .dashboard-panel .panel-heading h2 {
+    color: #f3f5f8;
+}
+
+.dark .dashboard-head p,
+.dark .dashboard-panel .panel-heading p {
+    color: #bdc6d1;
+}
+
+.dark .dashboard-stats,
+.dark .dashboard-layout {
+    background: #101720;
+    border-color: #293645;
+}
+
+.dark .dashboard-stats > div,
+.dark .dashboard-panel {
+    background: #151e29;
+    border-color: #303c4a;
+}
+
+.dark .dashboard-stats small {
+    color: #ffb47f;
+}
+
+.dark .dashboard-panel .panel-heading {
+    border-color: #303c4a;
+}
+
+.dark .dashboard-panel .form-field input,
+.dark .dashboard-panel .form-field textarea,
+.dark .dashboard-panel .form-field select {
+    background: #0b1119;
+    color: #e9eef5;
+    border-color: #394555;
+}
+
+.dark .dashboard-panel input[type="file"] {
+    background: #251b15;
+    border-color: #754b30;
+    color: #e9eef5;
+}
+
+.dark .dashboard-panel .manage-item {
+    border-color: #303c4a;
+}
+
+.dark .dashboard-panel .enquiry-row,
+.dark .dashboard-panel .empty-inline {
+    background: #101720;
+    border-color: #303c4a;
+}
+
+@media (max-width: 700px) {
+    .dashboard-head {
+        padding: 25px 20px;
+        margin: 15px 12px 0;
+        border-radius: 17px;
+    }
+
+    .dashboard-stats {
+        margin: 14px 12px 0;
+    }
+
+    .dashboard-layout {
+        padding: 12px;
+        margin: 14px 12px;
+        border-radius: 17px;
+    }
+
+    .dashboard-panel {
+        padding: 17px;
+        border-radius: 15px;
+    }
+}
+
+
+
+/* BuildSpot visual improvements */
+.button-seller-cta {
+    padding: 19px 27px;
+    min-height: 60px;
+    font-size: 14px;
+    box-shadow: 0 8px 22px #f36b0a30;
+    border: 2px solid #f36b0a;
+}
+.button-seller-cta:hover {
+    box-shadow: 0 12px 28px #f36b0a45;
+}
+.whatsapp-button-content {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.whatsapp-icon {
+    width: 23px;
+    height: 23px;
+    flex: 0 0 23px;
+    color: #fff;
+}
+.detail-seller a.button-orange:has(.whatsapp-icon) {
+    background: #168b4b;
+    color: #fff;
+}
+.detail-seller a.button-orange:has(.whatsapp-icon):hover {
+    background: #10783e;
+}
+.store-contact-row {
+    align-items: center;
+    gap: 10px 14px;
+    padding: 14px 16px;
+    margin-top: 8px;
+    width: fit-content;
+    max-width: 100%;
+    border: 1px solid #ffd2b0;
+    border-radius: 14px;
+    background: #fff3e8;
+    box-shadow: 0 7px 20px #082e590d;
+}
+.store-contact-row > span,
+.store-contact-row > a {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    overflow-wrap: anywhere;
+}
+.store-contact-row .whatsapp-link {
+    padding: 9px 12px;
+    border-radius: 9px;
+    background: #168b4b;
+    color: #fff;
+    transition: background .2s, transform .2s;
+}
+.store-contact-row .whatsapp-link:hover {
+    background: #10783e;
+    transform: translateY(-1px);
+}
+.dark .store-contact-row {
+    background: #171c22;
+    border-color: #344638;
+    box-shadow: 0 8px 24px #0003;
+}
+.dark .store-contact-row > span,
+.dark .store-contact-row > a:not(.whatsapp-link) {
+    color: #e3eaf2;
+}
+.dark .store-contact-row .whatsapp-link {
+    color: #fff;
+}
+@media (max-width: 700px) {
+    .button-seller-cta {
+        padding: 16px 18px;
+        min-height: 56px;
+        font-size: 13px;
+    }
+    .store-contact-row {
+        width: 100%;
+        padding: 12px;
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    .store-contact-row > span,
+    .store-contact-row > a {
+        max-width: 100%;
+    }
+    .store-contact-row .whatsapp-link {
+        align-self: flex-start;
+    }
+}
+
+
+
+
+/* ===== BuildSpot targeted UI repair ===== */
+.buildspot-floating-whatsapp {
+  position: fixed;
+  right: 22px;
+  bottom: 24px;
+  z-index: 9999;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 54px;
+  padding: 0 19px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #128c50;
+  color: #fff !important;
+  box-shadow: 0 8px 28px rgba(0,0,0,.24);
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none !important;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.buildspot-floating-whatsapp:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0,0,0,.3);
+}
+.buildspot-floating-whatsapp svg {
+  display: block;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+}
+.field-help {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted, #667085);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.password-field-enhanced {
+  position: relative;
+}
+.password-field-enhanced input[type="password"],
+.password-field-enhanced input[type="text"] {
+  padding-right: 76px !important;
+}
+.password-visibility-toggle {
+  position: absolute;
+  right: 10px;
+  top: 37px;
+  z-index: 2;
+  border: 0;
+  border-radius: 8px;
+  padding: 7px 9px;
+  background: transparent;
+  color: var(--muted, #667085);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.password-visibility-toggle:hover {
+  background: rgba(128,128,128,.12);
+  color: var(--orange, #f36b0a);
+}
+.dashboard-head {
+  border-radius: 24px;
+  padding: clamp(24px, 4vw, 42px);
+  margin-bottom: 24px;
+}
+.dashboard-head h1 {
+  letter-spacing: -.045em;
+  line-height: 1.12;
+}
+.dashboard-layout {
+  gap: 24px;
+  align-items: start;
+}
+.dashboard-panel,
+.dashboard-stats,
+.dashboard-layout > *,
+.dashboard-head,
+.dashboard-stat,
+.stat-card {
+  border-radius: 20px;
+}
+.dashboard-panel {
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid var(--line, #e5e7eb);
+  box-shadow: 0 10px 35px rgba(15,23,42,.055);
+}
+.dashboard-panel .panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.dashboard-panel .panel-heading h2 {
+  margin-top: 0;
+  letter-spacing: -.025em;
+}
+.dashboard-panel .form-field textarea {
+  min-height: 150px;
+  resize: vertical;
+  line-height: 1.7;
+}
+.dashboard-panel .form-field input,
+.dashboard-panel .form-field textarea,
+.dashboard-panel .form-field select {
+  max-width: 100%;
+  border-radius: 12px;
+}
+.dashboard-panel .form-field:has(textarea) {
+  grid-column: 1 / -1;
+}
+.enquiry-row {
+  padding: 17px 0;
+  border-bottom: 1px solid var(--line, #e5e7eb);
+}
+.enquiry-row:last-child {
+  border-bottom: 0;
+}
+.dark .dashboard-panel,
+.dark .dashboard-stats,
+.dark .dashboard-head,
+.dark .dashboard-layout > * {
+  background: #090d13;
+  border-color: #252c38;
+  box-shadow: 0 12px 34px rgba(0,0,0,.22);
+}
+.dark .field-help {
+  color: #aab4c4;
+}
+.dark .password-visibility-toggle {
+  color: #d0d7e2;
+}
+.dark .password-visibility-toggle:hover {
+  background: #202735;
+  color: #ff9b54;
+}
+@media (max-width: 640px) {
+  .buildspot-floating-whatsapp {
+    right: 14px;
+    bottom: 18px;
+    min-height: 50px;
+    padding: 0 15px;
+  }
+  .dashboard-panel {
+    padding: 17px;
+  }
+  .dashboard-panel .form-field:has(textarea) {
+    grid-column: 1;
+  }
+  .password-visibility-toggle {
+    top: 36px;
+  }
+}
+
+
+/* BUILDSPOT_SAFE_UI_OVERRIDES_20261016 */
+
+/* Small, fixed WhatsApp shortcut at the bottom-left */
+.buildspot-floating-whatsapp {
+    position: fixed;
+    left: 18px;
+    right: auto;
+    bottom: 20px;
+    z-index: 9999;
+    width: 56px;
+    min-width: 56px;
+    height: 56px;
+    min-height: 56px;
+    padding: 0;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #128c50;
+    color: #fff !important;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, .25);
+}
+
+.buildspot-floating-whatsapp svg {
+    width: 27px;
+    height: 27px;
+    flex: 0 0 27px;
+}
+
+.buildspot-floating-whatsapp span {
+    display: none;
+}
+
+.buildspot-floating-whatsapp:hover {
+    background: #0b7540;
+    transform: translateY(-2px);
+}
+
+/* More prominent seller dashboard */
+.dashboard-head {
+    background: #e5effb;
+    border: 1px solid #c8dcf5;
+    box-shadow: 0 10px 28px rgba(8, 46, 89, .08);
+}
+
+.dashboard-stats {
+    background: #eef4fc;
+}
+
+.dashboard-stats > div {
+    border-top: 3px solid var(--orange);
+    box-shadow: 0 7px 22px rgba(8, 46, 89, .06);
+}
+
+.dashboard-panel {
+    background: #fff;
+    border-color: #d7e2ef;
+    box-shadow: 0 10px 28px rgba(8, 46, 89, .07);
+}
+
+/* Cleaner signup and login forms */
+.form-page {
+    gap: clamp(28px, 6vw, 80px);
+}
+
+.form-page .form-card,
+.simple-form .form-card {
+    border: 1px solid #dce5ef;
+    border-radius: 22px;
+    box-shadow: 0 18px 50px rgba(8, 46, 89, .10);
+}
+
+.form-page .form-card h2,
+.simple-form .form-card h1 {
+    letter-spacing: -.7px;
+}
+
+.form-card .form-field label {
+    line-height: 1.5;
+}
+
+.form-card .button-full {
+    min-height: 49px;
+}
+
+/* Keep the interface readable in dark mode */
+.dark .dashboard-head {
+    background: #111923;
+    border-color: #27384b;
+}
+
+.dark .dashboard-stats {
+    background: #090d13;
+}
+
+.dark .dashboard-stats > div,
+.dark .dashboard-panel {
+    background: #111923;
+    border-color: #27384b;
+}
+
+.dark .form-page .form-card,
+.dark .simple-form .form-card {
+    background: #111923;
+    border-color: #273241;
+}
+
+@media (max-width: 640px) {
+    .buildspot-floating-whatsapp {
+        left: 14px;
+        right: auto;
+        bottom: 18px;
+        width: 52px;
+        min-width: 52px;
+        height: 52px;
+        min-height: 52px;
+        padding: 0;
+    }
+
+    .form-page {
+        padding: 35px 16px;
+    }
+}
+
+
+
+/* BUILDSPOT_MATERIAL_SHOWCASE_20261016 */
+.buildspot-material-showcase .material-showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+.material-showcase-card {
+    position: relative;
+    display: block;
+    min-width: 0;
+    min-height: 230px;
+    overflow: hidden;
+    border-radius: 18px;
+    background: #edf0f3;
+    color: #fff !important;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, .12);
+    text-decoration: none !important;
+}
+.material-showcase-card img {
+    display: block;
+    width: 100%;
+    height: 270px;
+    object-fit: cover;
+    transition: transform .35s ease;
+}
+.material-showcase-card:hover img {
+    transform: scale(1.045);
+}
+.material-showcase-caption {
+    position: absolute;
+    inset: auto 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 34px 18px 18px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, .82));
+}
+.material-showcase-caption strong {
+    font-size: 17px;
+    line-height: 1.35;
+}
+.material-showcase-caption small {
+    font-size: 12px;
+    color: #fff;
+}
+.dark .material-showcase-card {
+    background: #111923;
+}
+@media (max-width: 700px) {
+    .buildspot-material-showcase .material-showcase-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+    .material-showcase-card {
+        min-height: 200px;
+    }
+    .material-showcase-card img {
+        height: 220px;
+    }
+}
+
+
+
+/* BUILDSPOT_PREMIUM_SELLER_PROFILE_20261016 */
+.dashboard-head.dashboard-premium-head {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    isolation: isolate;
+    padding: 34px clamp(20px, 4vw, 48px);
+    color: #f4fff8;
+    background: #0b2d26;
+    border: 1px solid #234b3e;
+    border-radius: 22px;
+    margin: 26px max(5vw, 22px) 0;
+    box-shadow: 0 18px 45px #071f1718;
+}
+.dashboard-premium-head::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    width: 290px;
+    height: 290px;
+    right: -105px;
+    top: -155px;
+    border: 1px solid #b9f4d526;
+    border-radius: 50%;
+    box-shadow: 0 0 0 35px #b9f4d50a, 0 0 0 70px #b9f4d506;
+    pointer-events: none;
+}
+.dashboard-premium-head .seller-premium-content {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(230px, .8fr);
+    gap: 25px 35px;
+    align-items: center;
+}
+.seller-premium-identity {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    min-width: 0;
+}
+.seller-premium-logo {
+    flex: 0 0 86px;
+    width: 86px;
+    height: 86px;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    border-radius: 23px;
+    background: #d8f3e6;
+    border: 1px solid #ffffff45;
+    color: #145c40;
+    font: 800 36px Manrope, sans-serif;
+    box-shadow: 0 8px 24px #0002;
+}
+.seller-premium-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.seller-premium-copy {
+    min-width: 0;
+}
+.seller-premium-eyebrow {
+    display: block;
+    color: #9be0bf;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.6px;
+    margin-bottom: 8px;
+}
+.dashboard-premium-head .seller-premium-copy h1 {
+    margin: 0 0 9px;
+    color: #ffffff;
+    font: 800 clamp(25px, 3vw, 36px)/1.15 Manrope, sans-serif;
+    letter-spacing: -1px;
+    overflow-wrap: anywhere;
+}
+.dashboard-premium-head .seller-premium-copy p {
+    margin: 0;
+    max-width: 520px;
+    color: #c0d9cd;
+    font-size: 13px;
+    line-height: 1.7;
+}
+.seller-premium-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    align-items: center;
+    margin-top: 15px;
+}
+.seller-premium-status,
+.seller-premium-location {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 10px;
+    border-radius: 30px;
+    background: #ffffff12;
+    border: 1px solid #ffffff1c;
+    color: #e1eee7;
+    font-size: 10px;
+    font-weight: 700;
+}
+.seller-premium-status.is-verified {
+    background: #164c37;
+    border-color: #357c5a;
+    color: #b9f4d5;
+}
+.seller-premium-contact {
+    display: grid;
+    gap: 10px;
+    min-width: 0;
+}
+.seller-premium-contact-item {
+    padding: 13px 15px;
+    min-width: 0;
+    border-radius: 12px;
+    background: #ffffff09;
+    border: 1px solid #ffffff18;
+}
+.seller-premium-contact-item span,
+.seller-premium-contact-item strong {
+    display: block;
+}
+.seller-premium-contact-item span {
+    margin-bottom: 6px;
+    color: #9fc9b5;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+}
+.seller-premium-contact-item strong {
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+.seller-premium-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 19px;
+    border-top: 1px solid #ffffff20;
+}
+.dashboard-premium-head .seller-premium-button {
+    background: #b9f0d2;
+    color: #103e2c;
+    border: 1px solid #b9f0d2;
+    font-weight: 800;
+}
+.dashboard-premium-head .seller-premium-button:hover {
+    background: #d6f9e5;
+    color: #103e2c;
+    box-shadow: 0 8px 20px #0002;
+}
+.seller-premium-note {
+    color: #a9cbbb;
+    font-size: 11px;
+}
+.dark .dashboard-head.dashboard-premium-head {
+    background: #050806;
+    border-color: #263b31;
+}
+.dark .dashboard-premium-head .seller-premium-copy h1 {
+    color: #ffffff;
+}
+.dark .dashboard-premium-head .seller-premium-copy p {
+    color: #b9cfc3;
+}
+.dark .dashboard-premium-head .seller-premium-button {
+    background: #b9f0d2;
+    color: #103e2c;
+}
+@media (max-width: 760px) {
+    .dashboard-head.dashboard-premium-head {
+        margin: 18px 14px 0;
+        padding: 24px 19px;
+        border-radius: 18px;
+    }
+    .dashboard-premium-head .seller-premium-content {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 19px;
+    }
+    .seller-premium-identity {
+        align-items: flex-start;
+        gap: 13px;
+    }
+    .seller-premium-logo {
+        flex-basis: 61px;
+        width: 61px;
+        height: 61px;
+        border-radius: 17px;
+        font-size: 27px;
+    }
+    .dashboard-premium-head .seller-premium-copy h1 {
+        font-size: 25px;
+    }
+    .seller-premium-contact {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .seller-premium-actions {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    .dashboard-premium-head .seller-premium-button {
+        width: 100%;
+    }
+}
+
+
+/* BUILDSPOT_PREMIUM_DIGITAL_SHOWROOM_20261016 */
+.store-cover {
+    background: #123b2f !important;
+    color: #f8f5e9;
+    border: 1px solid #285b49;
+    border-radius: 24px;
+    box-shadow: 0 18px 45px rgba(10, 45, 32, 0.16);
+}
+
+.store-profile-logo {
+    background: #f8f3e5;
+    color: #123b2f;
+    border: 3px solid rgba(255, 255, 255, 0.65);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.store-profile-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.store-profile-info .eyebrow {
+    color: #f1c77b;
+    letter-spacing: 2px;
+    font-weight: 800;
+}
+
+.store-profile-info h1 {
+    color: #ffffff;
+}
+
+.store-profile-info > p {
+    color: #e1eae3;
+    line-height: 1.8;
+}
+
+.store-cover .verified-label {
+    color: #123b2f;
+    background: #f1c77b;
+    border-radius: 999px;
+    padding: 5px 10px;
+}
+
+.store-cover .store-contact-row {
+    color: #f8f5e9;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.store-cover .store-contact-row > span,
+.store-cover .store-contact-row > a:not(.whatsapp-link) {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 12px;
+    padding: 10px 13px;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+.store-cover .store-contact-row > a:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.store-cover .store-contact-row .whatsapp-link {
+    color: #ffffff;
+    background: #18794e;
+    border: 1px solid #49a879;
+    border-radius: 12px;
+    padding: 10px 14px;
+    text-decoration: none;
+}
+
+.dark .store-cover {
+    background: #123b2f !important;
+    color: #f8f5e9;
+    border-color: #285b49;
+}
+
+.dark .store-cover .store-profile-info h1 {
+    color: #ffffff;
+}
+
+.dark .store-cover .store-profile-info > p,
+.dark .store-cover .store-contact-row,
+.dark .store-cover .store-contact-row > span,
+.dark .store-cover .store-contact-row > a:not(.whatsapp-link) {
+    color: #ffffff;
+}
+
+@media (max-width: 700px) {
+    .store-cover {
+        border-radius: 18px;
+        padding: 28px 20px;
+    }
+
+    .store-cover .store-contact-row {
+        align-items: stretch;
+    }
+
+    .store-cover .store-contact-row > span,
+    .store-cover .store-contact-row > a {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+
+/* Improve readability of Digital Showroom contact details */
+.store-cover .store-contact-row > span,
+.store-cover .store-contact-row > a:not(.whatsapp-link) {
+    background: #f8f5e9;
+    color: #123b2f !important;
+    border: 1px solid #e2d5b4;
+    font-weight: 600;
+}
+
+.store-cover .store-contact-row > a:not(.whatsapp-link):hover {
+    background: #ffffff;
+    color: #123b2f !important;
+}
+
+.dark .store-cover .store-contact-row > span,
+.dark .store-cover .store-contact-row > a:not(.whatsapp-link) {
+    background: #f8f5e9;
+    color: #123b2f !important;
+}
+
+
+/* BUILDSPOT_PREMIUM_AUTH_20261016 */
+.auth-page {
+    min-height: 76vh;
+    padding: 52px 24px;
+    align-items: center;
+    background: #f3f6fa;
+}
+.auth-layout {
+    width: 100%;
+    max-width: 1080px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(350px, 450px);
+    align-items: stretch;
+    gap: 0;
+    border: 1px solid #e0e6ee;
+    border-radius: 25px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 24px 70px rgba(8, 46, 89, .11);
+}
+.auth-showcase {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    padding: 48px 42px;
+    color: #fff;
+    background: #082e59;
+}
+.auth-showcase:after {
+    content: "";
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    right: -140px;
+    bottom: -145px;
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 50%;
+    box-shadow: 0 0 0 35px rgba(255,255,255,.035),
+                0 0 0 75px rgba(255,255,255,.025);
+    pointer-events: none;
+}
+.auth-showcase-inner {
+    width: 100%;
+    max-width: 440px;
+    position: relative;
+    z-index: 1;
+}
+.auth-kicker {
+    display: inline-block;
+    color: #ffb17c;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    line-height: 1.7;
+}
+.auth-symbol {
+    width: 56px;
+    height: 56px;
+    display: grid;
+    place-items: center;
+    margin: 28px 0 24px;
+    border-radius: 16px;
+    background: #f36b0a;
+    color: #fff;
+    font: 800 23px Manrope, sans-serif;
+    box-shadow: 0 10px 25px rgba(0,0,0,.15);
+}
+.auth-symbol span { color: #ffe0c9; }
+.auth-showcase h1 {
+    margin: 0 0 17px;
+    color: #fff;
+    font: 800 clamp(34px, 3.5vw, 49px)/1.12 Manrope, sans-serif;
+    letter-spacing: -2px;
+}
+.auth-showcase h1 em {
+    color: #ff9a52;
+    font-style: normal;
+}
+.auth-showcase-inner > p {
+    max-width: 370px;
+    margin: 0;
+    color: #d2ddea;
+    font-size: 14px;
+    line-height: 1.85;
+}
+.auth-benefits {
+    display: grid;
+    gap: 22px;
+    margin-top: 35px;
+}
+.auth-benefits > div {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+}
+.auth-benefits > div > span {
+    flex: 0 0 25px;
+    width: 25px;
+    height: 25px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: #fff;
+    background: #24517b;
+    border: 1px solid #47739a;
+    font-size: 12px;
+    font-weight: 800;
+}
+.auth-benefits strong, .auth-benefits small { display: block; }
+.auth-benefits strong { color: #fff; font-size: 13px; }
+.auth-benefits small {
+    margin-top: 4px;
+    color: #b9c9da;
+    font-size: 11px;
+    line-height: 1.6;
+}
+.auth-showcase-foot {
+    margin-top: 38px;
+    padding-top: 19px;
+    border-top: 1px solid rgba(255,255,255,.16);
+    color: #b9c9da;
+    font-size: 11px;
+}
+.auth-card {
+    align-self: center;
+    width: 100%;
+    max-width: none;
+    padding: 42px 35px;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #fff;
+}
+.auth-card .eyebrow { margin-bottom: 11px; }
+.auth-card h1 {
+    margin: 0 0 10px;
+    color: #082e59;
+    font: 800 clamp(25px, 2.4vw, 31px)/1.2 Manrope, sans-serif;
+    letter-spacing: -1.1px;
+}
+.auth-card > p:not(.form-foot) {
+    color: #6f7c8d;
+    font-size: 13px;
+    line-height: 1.75;
+    margin: 0 0 27px;
+}
+.auth-card form { margin-top: 8px; }
+.auth-card .form-field { margin-bottom: 19px; }
+.auth-card .form-field label {
+    color: #253a54;
+    font-size: 12px;
+    font-weight: 800;
+}
+.auth-card .form-field input,
+.auth-card .form-field textarea,
+.auth-card .form-field select {
+    min-height: 47px;
+    padding: 12px 13px;
+    border: 1px solid #dce4ed;
+    border-radius: 10px;
+    background: #fbfcfe;
+    color: #12233b;
+    transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.auth-card .form-field input:focus,
+.auth-card .form-field textarea:focus,
+.auth-card .form-field select:focus {
+    border-color: #f36b0a;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(243,107,10,.11);
+    outline: none;
+}
+.auth-card .auth-submit {
+    min-height: 50px;
+    margin-top: 7px;
+    border-radius: 10px;
+    font-size: 13px;
+    box-shadow: 0 8px 18px rgba(243,107,10,.18);
+}
+.auth-secure-note {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+    color: #7b8797;
+    font-size: 10px;
+}
+.auth-switch {
+    margin: 24px 0 0 !important;
+    color: #657287 !important;
+    font-size: 12px !important;
+}
+.auth-switch a { color: #e85f08; font-weight: 800; }
+.auth-back-link {
+    display: block;
+    margin-top: 22px;
+    text-align: center;
+    color: #657287;
+    font-size: 11px;
+    font-weight: 700;
+}
+.auth-back-link:hover { color: #f36b0a; }
+.auth-error {
+    margin-bottom: 18px;
+    padding: 11px 12px;
+    border: 1px solid #f2c5c2;
+    border-radius: 9px;
+    background: #fff3f2;
+}
+.auth-signup-page {
+    gap: clamp(30px, 6vw, 85px);
+}
+.auth-signup-page .form-intro {
+    max-width: 540px;
+}
+.auth-signup-page .form-card {
+    border: 1px solid #e0e6ee;
+    border-radius: 22px;
+    padding: 32px;
+    box-shadow: 0 20px 55px rgba(8,46,89,.10);
+}
+.auth-signup-page .form-card h2 {
+    font-size: 26px;
+    letter-spacing: -.8px;
+}
+.auth-signup-page .form-card .button-full {
+    min-height: 49px;
+    border-radius: 10px;
+}
+.dark .auth-page { background: #090d13; }
+.dark .auth-layout {
+    background: #111923;
+    border-color: #273241;
+    box-shadow: 0 24px 70px rgba(0,0,0,.3);
+}
+.dark .auth-card { background: #111923; }
+.dark .auth-card h1 { color: #edf2f8; }
+.dark .auth-card > p:not(.form-foot) { color: #a0adbd; }
+.dark .auth-card .form-field label { color: #d5deea; }
+.dark .auth-card .form-field input,
+.dark .auth-card .form-field textarea,
+.dark .auth-card .form-field select {
+    background: #0b1119;
+    color: #e9eef5;
+    border-color: #2c3948;
+}
+.dark .auth-card .form-field input:focus,
+.dark .auth-card .form-field textarea:focus,
+.dark .auth-card .form-field select:focus {
+    border-color: #f36b0a;
+    background: #0d1520;
+}
+.dark .auth-secure-note,
+.dark .auth-back-link { color: #a0adbd; }
+.dark .auth-signup-page .form-card {
+    background: #111923;
+    border-color: #273241;
+}
+.dark .auth-signup-page .form-card h2 { color: #edf2f8; }
+.dark .auth-signup-page .form-card > p { color: #a0adbd; }
+
+@media (max-width: 850px) {
+    .auth-page { padding: 30px 18px; }
+    .auth-layout {
+        max-width: 560px;
+        grid-template-columns: 1fr;
+    }
+    .auth-showcase { padding: 30px 28px; }
+    .auth-symbol { margin: 18px 0; }
+    .auth-showcase h1 { font-size: 35px; }
+    .auth-benefits {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-top: 22px;
+    }
+    .auth-showcase-foot { margin-top: 23px; }
+    .auth-card { padding: 32px 27px; }
+    .auth-signup-page { gap: 26px; }
+    .auth-signup-page .form-card { padding: 25px 21px; }
+}
+@media (max-width: 420px) {
+    .auth-page { padding: 20px 12px; }
+    .auth-showcase { padding: 25px 21px; }
+    .auth-card { padding: 27px 20px; }
+    .auth-showcase h1 { font-size: 32px; }
+}
+
+
+
+/* BUILDSPOT_AUTH_PROFILE_POLISH_20261016 */
+.auth-signup-page {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(360px, 1.1fr);
+  align-items: start;
+  gap: clamp(28px, 5vw, 76px);
+  max-width: 1180px;
+  margin: 42px auto 64px;
+  padding: 0 24px;
+}
+.auth-signup-page .form-intro { align-self: center; padding: 28px 0; }
+.auth-signup-page .form-intro h1 { line-height: 1.06; letter-spacing: -.045em; }
+.auth-signup-page .form-intro > p { max-width: 480px; line-height: 1.8; }
+.auth-signup-page .form-intro ul { padding: 0; list-style: none; display: grid; gap: 13px; margin-top: 28px; }
+.auth-signup-page .form-intro li { font-weight: 600; }
+.auth-signup-note { display: flex; align-items: flex-start; gap: 14px; margin-top: 34px; padding: 18px; border: 1px solid rgba(128,145,165,.22); border-radius: 16px; max-width: 440px; }
+.auth-note-icon { display: grid; place-items: center; flex: 0 0 38px; height: 38px; border-radius: 12px; background: #fff0e7; color: #e66b25; font-size: 22px; }
+.auth-signup-note strong { display: block; }
+.auth-signup-note p { margin: 5px 0 0; font-size: .92rem; line-height: 1.6; }
+.auth-signup-card { width: 100%; max-width: 600px; margin: 0; padding: clamp(24px, 4vw, 40px); border-radius: 24px; box-shadow: 0 20px 65px rgba(10,35,60,.10); }
+.auth-signup-card h2 { margin-top: 8px; margin-bottom: 8px; letter-spacing: -.03em; }
+.auth-card-intro { margin: 0 0 24px; opacity: .78; line-height: 1.65; }
+.buildspot-auth-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 17px 16px; }
+.buildspot-auth-form .form-field { min-width: 0; margin: 0; }
+.buildspot-auth-form .field-wide { grid-column: 1 / -1; }
+.buildspot-auth-form .form-field label { display: block; margin-bottom: 8px; font-weight: 650; font-size: .92rem; }
+.buildspot-auth-form input:not([type="checkbox"]):not([type="hidden"]),
+.buildspot-auth-form select,
+.buildspot-auth-form textarea { width: 100%; max-width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid #dce3eb; border-radius: 12px; background: #fff; color: #182434; font: inherit; box-sizing: border-box; outline: none; transition: border-color .18s ease, box-shadow .18s ease; }
+.buildspot-auth-form textarea { min-height: 104px; resize: vertical; }
+.buildspot-auth-form input:focus,
+.buildspot-auth-form select:focus,
+.buildspot-auth-form textarea:focus { border-color: #e97935; box-shadow: 0 0 0 3px rgba(233,121,53,.13); }
+.password-input-wrap { position: relative; display: flex; align-items: center; }
+.password-input-wrap input { padding-right: 52px !important; }
+.password-toggle { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 38px; height: 38px; border: 0; border-radius: 9px; background: transparent; color: #68778a; cursor: pointer; }
+.password-toggle:hover { background: #f1f4f8; color: #e66b25; }
+.password-toggle svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.password-toggle .eye-closed { display: none; }
+.password-toggle.is-visible .eye-open { display: none; }
+.password-toggle.is-visible .eye-closed { display: block; }
+.auth-submit { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; border-radius: 12px; font-weight: 750; }
+.auth-submit span { font-size: 1.2em; }
+.auth-terms-note { grid-column: 1 / -1; margin: -5px 0 0; font-size: .8rem; line-height: 1.6; opacity: .72; }
+.auth-signup-card .form-foot { text-align: center; margin-top: 24px; }
+.dashboard-business-description { margin-top: 9px !important; max-width: 680px; line-height: 1.65; overflow-wrap: anywhere; }
+.dashboard-description-empty { opacity: .72; font-size: .92rem; }
+.auth-form-errors { margin-bottom: 12px; }
+.dark .auth-signup-card { background: #090d13; color: #f4f7fb; border: 1px solid #252d39; box-shadow: 0 20px 65px rgba(0,0,0,.28); }
+.dark .auth-signup-card .auth-card-intro,
+.dark .dark .auth-terms-note { color: #bdc7d4; }
+.dark .buildspot-auth-form input:not([type="checkbox"]):not([type="hidden"]),
+.dark .buildspot-auth-form select,
+.dark .buildspot-auth-form textarea { background: #111823; color: #f4f7fb; border-color: #303b49; }
+.dark .buildspot-auth-form input::placeholder,
+.dark .buildspot-auth-form textarea::placeholder { color: #98a5b5; }
+.dark .password-toggle { color: #c4cfdd; }
+.dark .password-toggle:hover { background: #202a37; color: #ff9a5b; }
+.dark .auth-signup-note { border-color: #303b49; }
+@media (max-width: 780px) {
+  .auth-signup-page { grid-template-columns: 1fr; gap: 22px; margin-top: 18px; padding: 0 16px; }
+  .auth-signup-page .form-intro { padding: 12px 0 0; }
+  .auth-signup-page .form-intro h1 { font-size: clamp(2.1rem, 9vw, 3.2rem); }
+  .auth-signup-page .form-intro ul { grid-template-columns: 1fr 1fr; gap: 12px; font-size: .9rem; }
+  .auth-signup-note { margin-top: 20px; }
+  .auth-signup-card { max-width: none; padding: 24px 18px; border-radius: 18px; }
+}
+@media (max-width: 460px) {
+  .buildspot-auth-form { grid-template-columns: 1fr; }
+  .buildspot-auth-form .field-wide,
+  .auth-submit,
+  .auth-terms-note { grid-column: 1; }
+  .auth-signup-page .form-intro ul { grid-template-columns: 1fr; }
+}
+
+/* BUILDSPOT SELLER DASHBOARD BLUE THEME */
+.dashboard-head.dashboard-premium-head {
+    color: #eff6ff;
+    background: #0b2d55;
+    border-color: #244d7d;
+    box-shadow: 0 18px 45px rgba(8, 46, 89, .18);
+}
+
+.dashboard-premium-head::after {
+    border-color: #bfdbfe26;
+    box-shadow: 0 0 0 35px #bfdbfe0a, 0 0 0 70px #bfdbfe06;
+}
+
+.seller-premium-logo {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.seller-premium-eyebrow {
+    color: #bfdbfe;
+}
+
+.dashboard-premium-head .seller-premium-copy p {
+    color: #d3e4f8;
+}
+
+.seller-premium-status,
+.seller-premium-location {
+    background: #ffffff12;
+    border-color: #ffffff25;
+    color: #eaf3ff;
+}
+
+.seller-premium-status.is-verified {
+    background: #173f70;
+    border-color: #477bb5;
+    color: #dbeafe;
+}
+
+.seller-premium-contact-item {
+    background: #ffffff09;
+    border-color: #ffffff20;
+}
+
+.seller-premium-contact-item span {
+    color: #bfdbfe;
+}
+
+.seller-premium-note {
+    color: #c4d9f2;
+}
+
+.dashboard-premium-head .seller-premium-button {
+    background: #bfdbfe;
+    color: #12345a;
+    border-color: #bfdbfe;
+}
+
+.dashboard-premium-head .seller-premium-button:hover {
+    background: #dbeafe;
+    color: #12345a;
+}
+
+.dark .dashboard-head.dashboard-premium-head {
+    background: #050b14;
+    border-color: #24466e;
+}
+
+.dark .dashboard-premium-head .seller-premium-copy p {
+    color: #c4d9f2;
+}
+
+.dark .dashboard-premium-head .seller-premium-button {
+    background: #bfdbfe;
+    color: #12345a;
+    border-color: #bfdbfe;
+}
+
+/* END BUILDSPOT SELLER DASHBOARD BLUE THEME */
+
+/* FINAL FIX: FORCE BUILDSPOT SELLER HEADER BLUE */
+html body .dashboard-head.dashboard-premium-head,
+html body.dark .dashboard-head.dashboard-premium-head,
+.dark .dashboard-head.dashboard-premium-head {
+    background-color: #0b2d55 !important;
+    background-image: none !important;
+    border-color: #244d7d !important;
+    color: #eff6ff !important;
+}
+
+html body .dashboard-premium-head .seller-premium-eyebrow {
+    color: #bfdbfe !important;
+}
+
+html body .dashboard-premium-head .seller-premium-button {
+    background-color: #bfdbfe !important;
+    border-color: #bfdbfe !important;
+    color: #12345a !important;
+}
+

@@ -1,3 +1,4 @@
+from django.db import IntegrityError, transaction
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth import login
@@ -38,35 +39,50 @@ def store_detail(request, slug):
 
 def signup(request):
     form = SellerSignupForm(request.POST or None)
+
     if request.method == "POST" and form.is_valid():
-        user = form.save()
-        business_name = form.cleaned_data["business_name"].strip()
-        base = slugify(business_name) or f"store-{user.username}"
-        slug = base
-        number = 2
+        try:
+            with transaction.atomic():
+                user = form.save()
 
-        while Store.objects.filter(slug=slug).exists():
-            slug = f"{base}-{number}"
-            number += 1
+                business_name = form.cleaned_data["business_name"].strip()
+                base = slugify(business_name) or f"store-{user.username}"
+                slug = base
+                number = 2
 
-        Store.objects.create(
-            owner=user,
-            business_name=business_name,
-            slug=slug,
-            phone=form.cleaned_data["phone"],
-            email=user.email,
-            state=form.cleaned_data["state"],
-            city=form.cleaned_data["city"],
-            address=form.cleaned_data["address"],
-        )
-        login(request, user)
-        messages.success(
-            request,
-            "Your seller account and store are ready. You can now add products."
-        )
-        return redirect("seller_dashboard")
+                while Store.objects.filter(slug=slug).exists():
+                    slug = f"{base}-{number}"
+                    number += 1
+
+                Store.objects.create(
+                    owner=user,
+                    business_name=business_name,
+                    slug=slug,
+                    phone=form.cleaned_data["phone"],
+                    email=user.email,
+                    state=form.cleaned_data["state"],
+                    city="",
+                    address=form.cleaned_data["address"],
+                    description=form.cleaned_data.get("description", "").strip(),
+                )
+
+            login(request, user)
+            messages.success(
+                request,
+                "Your BuildSpot account and seller profile are ready. "
+                "You can now add products."
+            )
+            return redirect("seller_dashboard")
+
+        except IntegrityError:
+            form.add_error(
+                None,
+                "We could not finish creating your account and store. "
+                "Please check your details and try again. If this continues, "
+                "contact the site administrator."
+            )
+
     return render(request, "market/signup.html", {"form": form})
-
 
 @login_required
 def seller_dashboard(request):

@@ -1,1 +1,44 @@
-{% extends 'base.html' %}{% block title %}Seller Login · BuildSpot{% endblock %}{% block content %}<section class="simple-form"><div class="form-card"><span class="eyebrow">WELCOME BACK</span><h1>Log in to BuildSpot</h1><p>Manage your showroom and buyer enquiries.</p><form method="post">{% csrf_token %}{% if form.non_field_errors %}<div class="error">{{ form.non_field_errors }}</div>{% endif %}{% for field in form %}<div class="form-field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<small class="error">{{ error }}</small>{% endfor %}</div>{% endfor %}<button class="button button-orange button-full" type="submit">Log in ↗</button></form><p class="form-foot">New to BuildSpot? <a href="{% url 'signup' %}">Open a store</a></p></div></section>{% endblock %}
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Log In · BuildSpot{% endblock %}
+{% block content %}
+<section class="simple-form auth-page">
+  <div class="auth-layout">
+    <aside class="auth-showcase">
+      <div class="auth-showcase-inner">
+        <span class="auth-kicker">YOUR BUILDING MATERIALS MARKETPLACE</span>
+        <div class="auth-symbol" aria-hidden="true">B<span>S</span></div>
+        <h1>Welcome back<br>to <em>BuildSpot.</em></h1>
+        <p>Your store, your products and your buyer enquiries — all in one place.</p>
+        <div class="auth-benefits">
+          <div><span>✓</span><div><strong>Your digital showroom</strong><small>Keep your business visible online.</small></div></div>
+          <div><span>✓</span><div><strong>Manage your catalogue</strong><small>Keep products and prices organised.</small></div></div>
+          <div><span>✓</span><div><strong>Connect with buyers</strong><small>Manage enquiries from your dashboard.</small></div></div>
+        </div>
+        <div class="auth-showcase-foot">Built for Nigeria's building industry.</div>
+      </div>
+    </aside>
+    <div class="form-card auth-card">
+      <span class="eyebrow">WELCOME BACK</span>
+      <h1>Sign in to your account</h1>
+      <p>Enter your account details to continue to BuildSpot.</p>
+      <form method="post">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="error auth-error">{{ form.non_field_errors }}</div>{% endif %}
+        {% for field in form %}
+          <div class="form-field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}<small class="error">{{ error }}</small>{% endfor %}
+            {% if field.help_text %}<small class="help-text">{{ field.help_text|safe }}</small>{% endif %}
+          </div>
+        {% endfor %}
+        <button class="button button-orange button-full auth-submit" type="submit">Sign in to BuildSpot <span aria-hidden="true">↗</span></button>
+      </form>
+      <div class="auth-secure-note"><span aria-hidden="true">▣</span> Your account details are submitted securely.</div>
+      <p class="form-foot auth-switch">New to BuildSpot? <a href="{% url 'signup' %}">Create a seller account ↗</a></p>
+      <a class="auth-back-link" href="{% url 'home' %}">← Back to the marketplace</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

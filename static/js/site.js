@@ -53,3 +53,43 @@ if ('serviceWorker' in navigator) {
 }
 
 })();;
+
+
+/* BuildSpot: accessible password show/hide controls */
+(() => {
+  function addPasswordToggles() {
+    document.querySelectorAll('input[type="password"]').forEach((input) => {
+      if (input.dataset.visibilityToggleAdded === 'true') return;
+
+      const wrapper = input.closest('.form-field') || input.parentElement;
+      if (!wrapper) return;
+
+      wrapper.classList.add('password-field-enhanced');
+      input.dataset.visibilityToggleAdded = 'true';
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'password-visibility-toggle';
+      button.textContent = 'Show';
+      button.setAttribute('aria-label', 'Show password');
+      button.setAttribute('aria-pressed', 'false');
+
+      button.addEventListener('click', () => {
+        const reveal = input.type === 'password';
+        input.type = reveal ? 'text' : 'password';
+        button.textContent = reveal ? 'Hide' : 'Show';
+        button.setAttribute('aria-label', reveal ? 'Hide password' : 'Show password');
+        button.setAttribute('aria-pressed', String(reveal));
+        input.focus();
+      });
+
+      input.insertAdjacentElement('afterend', button);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addPasswordToggles);
+  } else {
+    addPasswordToggles();
+  }
+})();
