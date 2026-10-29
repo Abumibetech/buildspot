@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Join the BuildSpot Community · BuildSpot{% endblock %}
+{% block content %}
+<style>
+.buyer-join-page{max-width:1080px;margin:42px auto;padding:0 20px 48px}
+.buyer-join-layout{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:stretch}
+.buyer-join-intro{border-radius:24px;padding:clamp(26px,4vw,48px);color:#fff;background:linear-gradient(145deg,#092d55,#124777);display:flex;flex-direction:column;justify-content:center;min-height:440px}
+.buyer-join-kicker{font-size:.76rem;letter-spacing:.13em;font-weight:800;color:#ffc58b}
+.buyer-join-intro h1{font-size:clamp(2.1rem,4vw,3.4rem);line-height:1.08;margin:18px 0}
+.buyer-join-intro h1 em{color:#ffad61;font-style:normal}
+.buyer-join-intro>p{color:#e0eaf4;line-height:1.8}
+.buyer-join-points{list-style:none;padding:0;margin:24px 0 0;display:grid;gap:15px}
+.buyer-join-points li{display:flex;gap:12px;align-items:flex-start;color:#f3f7fb}
+.buyer-join-points span{color:#ffc58b;font-weight:900}
+.buyer-join-card{background:var(--card-bg,#fff);border:1px solid var(--border-color,#e7e9ed);border-radius:24px;padding:clamp(24px,4vw,40px);box-shadow:0 16px 48px #10243b12}
+.buyer-join-card h2{margin:8px 0;font-size:1.8rem}
+.buyer-join-card>p{line-height:1.65;color:var(--muted,#687386)}
+.buyer-join-card .form-field{margin:18px 0}
+.buyer-join-card .form-field input{width:100%;box-sizing:border-box}
+.buyer-join-card .help-text{display:block;margin-top:7px}
+.buyer-join-card .buyer-next{display:none}
+.buyer-join-links{margin-top:22px;padding-top:18px;border-top:1px solid var(--border-color,#e7e9ed);line-height:1.9}
+.buyer-join-links a{font-weight:700}
+.buyer-join-card .error{display:block;margin-top:6px}
+@media(max-width:760px){.buyer-join-layout{grid-template-columns:1fr}.buyer-join-intro{min-height:0}.buyer-join-page{margin-top:20px}}
+</style>
+<section class="buyer-join-page">
+  <div class="buyer-join-layout">
+    <aside class="buyer-join-intro">
+      <span class="buyer-join-kicker">BUILDSPOT · BUYER COMMUNITY</span>
+      <h1>Build something great.<br><em>Find your people.</em></h1>
+      <p>Join a community for people building, renovating and sourcing building materials across Nigeria.</p>
+      <ul class="buyer-join-points">
+        <li><span><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span><div><strong>Connect with the community</strong><br>Join discussions and share construction questions.</div></li>
+        <li><span><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span><div><strong>Request building materials</strong><br>Tell suppliers what you need and where you need it.</div></li>
+        <li><span><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span><div><strong>Discover local suppliers</strong><br>Explore stores and available products.</div></li>
+      </ul>
+    </aside>
+    <div class="buyer-join-card">
+      <span class="eyebrow">FREE BUYER ACCOUNT</span>
+      <h2>Create your account</h2>
+      <p>No shop or business details required. Just create your personal BuildSpot login.</p>
+      <form method="post" class="buildspot-auth-form">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        {% if form.non_field_errors %}
+          <div class="error auth-form-errors">{{ form.non_field_errors }}</div>
+        {% endif %}
+        {% for field in form %}
+          <div class="form-field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+              <small class="error">{{ error }}</small>
+            {% endfor %}
+            {% if field.help_text %}
+              <small class="help-text">{{ field.help_text|safe }}</small>
+            {% endif %}
+          </div>
+        {% endfor %}
+        <button class="button button-orange button-full auth-submit" type="submit">
+          Join the community <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </button>
+      </form>
+      <div class="buyer-join-links">
+        Already have an account? <a href="{% url 'login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Sign in</a>
+        <br>
+        Have a building-materials business? <a href="{% url 'signup' %}">Create a seller account</a>
+        <br>
+        <a href="{% url 'community' %}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Browse the community first</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

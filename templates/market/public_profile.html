@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="dashboard-panel" style="max-width:900px;margin:24px auto;padding:24px;">
+  <p><a href="{% url 'community' %}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to BuildSpot Community</a></p>
+
+  <header style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+    <div aria-hidden="true" style="width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:#fce7d6;color:#8a3b0a;font-size:28px;font-weight:700;">
+      {{ profile_user.username|slice:":1"|upper }}
+    </div>
+    <div>
+      <h1 style="margin:0;">{{ profile_user.username }}</h1>
+      <p class="muted">BuildSpot member since {{ profile_user.date_joined|date:"M Y" }}</p>
+    </div>
+  </header>
+
+  <section style="display:flex;gap:24px;flex-wrap:wrap;margin:20px 0;">
+    <p><strong>{{ post_count }}</strong> community posts</p>
+    <p><strong>{{ request_count }}</strong> material requests</p>
+  </section>
+
+  {% if store %}
+    <section class="dashboard-panel" style="padding:18px;margin:20px 0;">
+      <h2>Public business profile</h2>
+      {% if store.logo %}
+        <img src="{{ store.logo.url }}" alt="{{ store.business_name }} logo"
+             style="width:88px;height:88px;object-fit:contain;border-radius:12px;">
+      {% endif %}
+      <h3>{{ store.business_name }}</h3>
+      <p>{{ store.city }}, {{ store.state }}</p>
+      {% if store.description %}<p>{{ store.description|linebreaksbr }}</p>{% endif %}
+      <p><a class="button button-orange" href="{% url 'store_detail' store.slug %}">Visit public store</a></p>
+    </section>
+  {% endif %}
+
+  <section style="margin:24px 0;">
+    <h2>Recent material requests</h2>
+    {% for item in material_requests %}
+      <article class="dashboard-panel" style="padding:16px;margin:12px 0;">
+        <h3>{{ item.material }}</h3>
+        <p><strong>Quantity:</strong> {{ item.quantity }}</p>
+        <p><strong>Location:</strong> {{ item.city|default:"State-wide" }}, {{ item.state }}</p>
+        <p><strong>Status:</strong> {{ item.get_status_display }}</p>
+        <p><small>Posted {{ item.created_at|date:"M j, Y" }}</small></p>
+        <p><a href="{% url 'community' %}?state={{ item.state|urlencode }}">View community requests</a></p>
+      </article>
+    {% empty %}
+      <p>No material requests have been posted.</p>
+    {% endfor %}
+  </section>
+
+  <section style="margin:24px 0;">
+    <h2>Recent community posts</h2>
+    {% for post in posts %}
+      <article class="dashboard-panel" style="padding:16px;margin:12px 0;">
+        <p>{{ post.body|linebreaksbr }}</p>
+        {% if post.photo %}
+          <img src="{{ post.photo.url }}" alt="Photo shared by {{ profile_user.username }}"
+               loading="lazy" style="max-width:100%;height:auto;border-radius:12px;">
+        {% endif %}
+        <p><small>Posted {{ post.created_at|date:"M j, Y" }}</small></p>
+        <p><a href="{% url 'community' %}#community-post-{{ post.id }}">View discussion</a></p>
+      </article>
+    {% empty %}
+      <p>No community posts have been published.</p>
+    {% endfor %}
+  </section>
+</main>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Notifications | BuildSpot{% endblock %}
+{% block content %}
+<style>
+.bs-notifications{max-width:900px;margin:30px auto;padding:0 16px 32px;color:var(--text,#20252b)}
+.bs-notifications-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.bs-notifications-head h1{margin:0 0 6px;font-size:clamp(25px,4vw,34px);letter-spacing:-.6px}
+.bs-notifications-subtitle{margin:0;opacity:.72}
+.bs-notifications-back{font-weight:700;text-decoration:none}
+.bs-notification-card{position:relative;margin:12px 0;padding:20px;border:1px solid rgba(130,130,130,.2);border-radius:18px;background:var(--card-bg,#fff);box-shadow:0 5px 18px rgba(20,30,40,.045)}
+.bs-notification-card.is-unread{border-color:#f2b17e;background:linear-gradient(115deg,rgba(255,239,224,.72),var(--card-bg,#fff) 65%)}
+.bs-notification-card h2{margin:0 0 8px;font-size:18px;line-height:1.35}
+.bs-notification-card p{line-height:1.6;margin:0 0 12px}
+.bs-notification-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;opacity:.7}
+.bs-notification-state{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#a94b0b}
+.bs-notification-state:before{content:"";width:7px;height:7px;border-radius:50%;background:#f07821}
+.bs-notification-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:15px}
+.bs-notification-actions form{margin:0}
+.bs-notification-empty{padding:38px 20px;text-align:center;border:1px dashed rgba(130,130,130,.35);border-radius:18px}
+.bs-notification-empty strong{display:block;font-size:18px;margin-bottom:8px}
+@media(prefers-color-scheme:dark){.bs-notification-card{background:var(--card-bg,#20252b)}.bs-notification-card.is-unread{background:linear-gradient(115deg,rgba(140,75,30,.22),var(--card-bg,#20252b) 65%)}}
+</style>
+<section class="bs-notifications">
+  <header class="bs-notifications-head">
+    <div>
+      <h1>Notifications</h1>
+      <p class="bs-notifications-subtitle">Your latest BuildSpot updates, all in one place.</p>
+    </div>
+    <a class="bs-notifications-back" href="{% url 'community' %}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Materials Community</a>
+  </header>
+
+  {% for notification in notifications %}
+    <article class="bs-notification-card{% if not notification.is_read %} is-unread{% endif %}">
+      <div class="bs-notifications-head" style="margin-bottom:10px">
+        <h2>{{ notification.title }}</h2>
+        {% if not notification.is_read %}
+          <span class="bs-notification-state">New</span>
+        {% endif %}
+      </div>
+      <p>{{ notification.message }}</p>
+      <div class="bs-notification-meta">
+        <time datetime="{{ notification.created_at|date:'c' }}">{{ notification.created_at|date:"M j, Y · g:i a" }}</time>
+        {% if notification.is_read %}<span>Read</span>{% endif %}
+      </div>
+      <div class="bs-notification-actions">
+        {% if notification.url %}
+          <a class="button button-orange community-open-related" href="{{ notification.url }}">View update <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        {% endif %}
+        {% if not notification.is_read %}
+          <form method="post" action="{% url 'community_notification_read' notification.id %}">
+            {% csrf_token %}
+            <button class="button" type="submit">Mark as read</button>
+          </form>
+        {% endif %}
+      </div>
+    </article>
+  {% empty %}
+    <div class="bs-notification-empty">
+      <strong>You're all caught up</strong>
+      <p>New updates about your material requests and community activity will appear here.</p>
+      <a class="button button-orange" href="{% url 'community' %}">Explore the community</a>
+    </div>
+  {% endfor %}
+</section>
+{% endblock %}

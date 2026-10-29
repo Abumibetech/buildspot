@@ -1,2 +1,153 @@
-{% load static %}<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#092d55"><meta name="description" content="BuildSpot — your one-stop building materials market"><link rel="manifest" href="{% static 'pwa/manifest.json' %}"><link rel="icon" href="{% static 'img/logo.jpeg' %}"><link rel="stylesheet" href="{% static 'css/site.css' %}?v=20261016bluefix3"><title>{% block title %}BuildSpot — Building Materials Market{% endblock %}</title></head><body><header class="nav"><a class="brand" href="{% url 'home' %}" aria-label="BuildSpot home"><img src="{% static 'img/logo.jpeg' %}" alt="BuildSpot — Your One-Stop Building Materials Market"></a><button class="menu-toggle" aria-label="Open menu" aria-expanded="false">☰</button><nav class="navlinks"><a href="{% url 'home' %}">Home</a><a href="{% url 'market' %}">Find a Store</a>{% if user.is_authenticated %}<a href="{% url 'seller_dashboard' %}">Seller dashboard</a><form method="post" action="{% url 'logout' %}" class="inline-form">{% csrf_token %}<button class="nav-login" type="submit">Log out</button></form>{% else %}<a href="{% url 'login' %}">Log in</a><a class="nav-cta" href="{% url 'signup' %}">Open a store</a>{% endif %}<button class="theme-toggle" aria-label="Toggle dark mode">◐</button></nav></header>
-<button class="install-btn" id="install-app-button">Install BuildSpot App</button>{% if messages %}<div class="messages">{% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}<main>{% block content %}{% endblock %}</main><footer><div class="footer-brand">BuildSpot</div><p>Your one-stop building materials market.</p><div><a href="{% url 'market' %}">Explore stores</a> · <a href="{% url 'signup' %}">Become a seller</a></div><small>© {% now "Y" %} BuildSpot. Built for the building industry.</small></footer><script src="{% static 'js/site.js' %}"></script></body></html>
+{% load static %}<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#092d55"><meta name="description" content="BuildSpot — your one-stop building materials market"><link rel="manifest" href="{% static 'pwa/manifest.json' %}"><link rel="icon" href="{% static 'img/logo.jpeg' %}"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"><link rel="stylesheet" href="{% static 'css/site.css' %}?v=removealertbanner20261028"><title>{% block title %}BuildSpot — Building Materials Market{% endblock %}</title>
+<!-- BuildSpot Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-D0253KWF4C"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-D0253KWF4C');
+</script>
+
+{% block extra_head %}{% endblock %}
+</head><body><header class="nav"><a class="brand" href="{% url 'home' %}" aria-label="BuildSpot home"><img src="{% static 'img/logo.jpeg' %}" alt="BuildSpot — Your One-Stop Building Materials Market"></a><button class="menu-toggle" aria-label="Open menu" aria-expanded="false">☰</button><nav class="navlinks"><a href="{% url 'home' %}"><i class="fa-solid fa-house buildspot-fa-icon" aria-hidden="true"></i> Home</a><a href="{% url 'market' %}"><i class="fa-solid fa-store buildspot-fa-icon" aria-hidden="true"></i> Find a Store</a><a href="{% url 'community' %}"><i class="fa-solid fa-users buildspot-fa-icon" aria-hidden="true"></i> Materials Community</a>{% if user.is_authenticated %}<a class="buildspot-notification-link" href="{% url 'community_notifications' %}" aria-label="Notifications"><i class="fa-solid fa-bell buildspot-fa-icon" aria-hidden="true"></i><span>Notifications</span><span id="buildspot-unread-count" class="buildspot-unread-count" hidden>0</span></a>{% if user.store %}<a href="{% url 'seller_dashboard' %}">Seller dashboard</a>{% endif %}<form method="post" action="{% url 'logout' %}" class="inline-form">{% csrf_token %}<button class="nav-login" type="submit">Log out</button></form>{% else %}<a href="{% url 'login' %}">Log in</a><a class="nav-cta" href="{% url 'signup' %}">Open a store</a>{% endif %}<button class="theme-toggle" aria-label="Toggle dark mode">◐</button></nav></header>
+<style>
+.buildspot-notification-link {
+  display:inline-flex!important;align-items:center;justify-content:center;
+  gap:7px;position:relative;text-decoration:none;white-space:nowrap;
+}
+.buildspot-bell-icon {font-size:20px;line-height:1;color:inherit}
+.buildspot-unread-count {
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:19px;height:19px;padding:0 5px;box-sizing:border-box;
+  border-radius:999px;background:#ed6b18;color:#fff;
+  font-size:11px;font-weight:800;line-height:1;
+}
+.buildspot-unread-count[hidden] {display:none!important}
+@media(max-width:700px) {
+  .buildspot-notification-link {justify-content:flex-start}
+}
+</style>
+
+<button class="install-btn" id="install-app-button">Install BuildSpot App</button>{% if messages %}<div class="messages">{% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}<main>{% block content %}{% endblock %}</main><footer><div class="footer-brand">BuildSpot</div><p>Your one-stop building materials market.</p><div><a href="{% url 'market' %}">Explore stores</a> · <a href="{% url 'signup' %}">Become a seller</a></div><small>© {% now "Y" %} BuildSpot. Built for the building industry.</small></footer>
+{% if user.is_authenticated %}
+<style>
+#buildspot-live-alerts {
+  position:fixed;right:16px;bottom:16px;z-index:99999;
+  width:min(380px,calc(100vw - 32px));display:grid;gap:10px;
+}
+.buildspot-live-alert {
+  background:#fff;color:#17202a;border-left:5px solid #f28c28;
+  border-radius:12px;padding:15px 16px;box-shadow:0 8px 28px #0003;
+}
+.buildspot-live-alert strong {display:block;margin-bottom:5px}
+.buildspot-live-alert p {margin:0 0 10px}
+.buildspot-live-alert a {color:#0957a6;font-weight:700}
+.buildspot-live-alert button {
+  float:right;border:0;background:transparent;font-size:20px;cursor:pointer;
+}
+@media(prefers-color-scheme:dark) {
+  .buildspot-live-alert {background:#20252b;color:#f7f7f7}
+}
+</style>
+<div id="buildspot-live-alerts" aria-live="polite" aria-atomic="false"></div>
+<script>
+/* buildspot-live-notification-alerts-v1 */
+(() => {
+  if (window.__buildspotLiveAlertsStarted) return;
+  window.__buildspotLiveAlertsStarted = true;
+
+  const container = document.getElementById("buildspot-live-alerts");
+  if (!container) return;
+
+  const endpoint = "{% url 'community_notification_updates' %}";
+  const updateUnreadBadge = data => {
+    const badge = document.getElementById("buildspot-unread-count");
+    if (!badge || !data || !Number.isFinite(Number(data.unread_count))) return;
+    const count = Math.max(0, Number(data.unread_count));
+    badge.textContent = count > 99 ? "99+" : String(count);
+    badge.hidden = count === 0;
+    badge.setAttribute("aria-label", count + " unread notifications");
+  };
+
+  let cursor = 0;
+  let busy = false;
+
+  function showAlert(item) {
+    const card = document.createElement("div");
+    card.className = "buildspot-live-alert";
+
+    const close = document.createElement("button");
+    close.type = "button";
+    close.setAttribute("aria-label", "Dismiss notification");
+    close.textContent = "×";
+    close.addEventListener("click", () => card.remove());
+
+    const title = document.createElement("strong");
+    title.textContent = item.title || "BuildSpot notification";
+
+    const message = document.createElement("p");
+    message.textContent = item.message || "You have a new notification.";
+
+    const link = document.createElement("a");
+    link.textContent = "View notification";
+    const suppliedUrl = typeof item.url === "string" ? item.url : "";
+    let safeUrl = "/community/notifications/";
+    try {
+      const parsedUrl = new URL(suppliedUrl, window.location.origin);
+      if (suppliedUrl.startsWith("/") &&
+          !suppliedUrl.startsWith("//") &&
+          parsedUrl.origin === window.location.origin) {
+        safeUrl = suppliedUrl;
+      }
+    } catch (_) {}
+    link.href = safeUrl;
+
+    card.append(close, title, message, link);
+    container.appendChild(card);
+
+    window.setTimeout(() => {
+      if (card.isConnected) card.remove();
+    }, 15000);
+
+  }
+
+  async function poll() {
+    if (busy || !navigator.onLine) return;
+    busy = true;
+    try {
+      const response = await fetch(
+        endpoint + "?after=" + encodeURIComponent(cursor),
+        {credentials: "same-origin", headers: {"X-Requested-With": "XMLHttpRequest"}}
+      );
+      if (!response.ok) return;
+
+      const data = await response.json();
+      updateUnreadBadge(data);
+      for (const item of (data.notifications || [])) {
+        cursor = Math.max(cursor, Number(item.id) || 0);
+        showAlert(item);
+      }
+      cursor = Math.max(cursor, Number(data.latest_id) || 0);
+    } catch (_) {
+      // A temporary connection failure should not interrupt the page.
+    } finally {
+      busy = false;
+    }
+  }
+
+  // Start from the latest existing notification, so old alerts aren't replayed.
+  fetch(endpoint + "?after=0", {credentials: "same-origin"})
+    .then(response => response.ok ? response.json() : null)
+    .then(data => {
+      if (!data) return;
+      updateUnreadBadge(data);
+      cursor = Number(data.latest_id) || 0;
+      window.setInterval(poll, 12000);
+    })
+    .catch(() => {});
+})();
+</script>
+{% endif %}
+
+{% if user.is_authenticated %}<script>window.BUILDSPOT_PUSH_ENABLED = true;</script>{% endif %}
+<script src="{% static 'js/site.js' %}?v=notificationpermissionhide20261028"></script></body></html>

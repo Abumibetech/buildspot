@@ -1,0 +1,459 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<meta name="description" content="Join the BuildSpot Community to connect with building-material buyers and suppliers across Nigeria, share project updates, and discover material requests.">
+<link rel="canonical" href="{{ community_absolute_url }}">
+<meta property="og:title" content="{{ community_title|default:'BuildSpot Community' }} | BuildSpot">
+<meta property="og:description" content="Connect with building-material buyers and suppliers across Nigeria. Share ideas, discover material requests, and grow with BuildSpot Community.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ community_absolute_url }}">
+<meta property="og:image" content="{{ community_image_absolute_url }}">
+<meta property="og:image:secure_url" content="{{ community_image_absolute_url }}">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:alt" content="BuildSpot — Your One-Stop Building Materials Market">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{{ community_title|default:'BuildSpot Community' }} | BuildSpot">
+<meta name="twitter:description" content="Connect with building-material buyers and suppliers across Nigeria on BuildSpot Community.">
+<meta name="twitter:image" content="{{ community_image_absolute_url }}">
+{% endblock %}
+{% block content %}
+<div class="dashboard-panel" style="max-width:1100px;margin:24px auto;padding:24px;">
+  <h1>{{ community_title }}</h1>
+  <p>Connect with buyers and suppliers. Share material needs, discover public stores, and explore building-material requests.</p>
+
+  <section class="dashboard-panel community-request-hero" aria-labelledby="community-request-title">
+    <div class="community-request-heading">
+      <span class="community-request-icon" aria-hidden="true">
+        <i class="fa-solid fa-box-open"></i>
+      </span>
+      <div>
+        <span class="community-request-kicker">BUILDSPOT MARKETPLACE</span>
+        <h2 id="community-request-title">Post a Material Request</h2>
+        <p>Tell suppliers what you need and where you need it. Active sellers in your selected state can be notified.</p>
+      </div>
+    </div>
+    {% if user.is_authenticated %}
+      <form class="community-request-form" method="post" action="{% url 'community_request_create' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+          <div class="community-request-field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+            {% for error in field.errors %}<p style="color:#b42318;">{{ error }}</p>{% endfor %}
+          </div>
+        {% endfor %}
+        <button class="button button-orange community-request-publish" type="submit"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Publish Request</button>
+      </form>
+    {% else %}
+      <p class="community-request-login"><i class="fa-solid fa-lock" aria-hidden="true"></i> <a href="{% url 'login' %}?next=/community/">Log in</a> to publish your request.</p>
+    {% endif %}
+  </section>
+
+
+  {% if user.is_authenticated %}
+    <p>
+      <a class="button button-orange community-notifications-button"
+         href="{% url 'community_notifications' %}">
+        View Community Notifications
+        {% if unread_notification_count %}({{ unread_notification_count }} unread){% endif %}
+      </a>
+    </p>
+  {% else %}
+    <p><a class="button button-orange community-notifications-button"
+          href="{% url 'login' %}?next=/community/notifications/">Log in to view community notifications</a></p>
+  {% endif %}
+
+  {% if messages %}
+    {% for message in messages %}
+      <p class="empty-inline">{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+
+
+
+  <section class="dashboard-panel community-composer">
+    <div class="community-composer-heading">
+      <span class="community-composer-kicker">BUILDS﻿POT COMMUNITY</span>
+      <h2><i class="fa-solid fa-people-group community-composer-title-icon" aria-hidden="true"></i> Share with the Community</h2>
+      <p>Exchange ideas, ask questions and share useful updates with builders and suppliers near you.</p>
+    </div>
+    <p class="community-composer-prompt"><i class="fa-regular fa-lightbulb" aria-hidden="true"></i> Share building tips, project updates, questions, and market news with the BuildSpot community.</p>
+
+    {% if user.is_authenticated %}
+      <form class="community-composer-form" method="post" action="{% url 'community_post_create' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in post_form %}
+          <div class="community-composer-field">
+            <label for="{{ field.id_for_label }}">
+              {% if field.name == "body" %}What would you like to share?{% elif field.name == "photo" %}Add a project photo <span class="community-optional">(optional)</span>{% else %}{{ field.label }}{% endif %}
+            </label>
+            {{ field }}
+            {% for error in field.errors %}<p style="color:#b42318;">{{ error }}</p>{% endfor %}
+          </div>
+        {% endfor %}
+        <div class="community-composer-footer"><span class="community-composer-note">Share respectfully. Help the building community grow.</span><button class="button button-orange community-publish-button" type="submit"><span>Publish Post</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></button></div>
+      </form>
+    {% else %}
+      <p><a href="{% url 'login' %}?next=/community/">Log in</a> to publish a community post.</p>
+    {% endif %}
+  </section>
+
+  <section style="margin:24px 0;">
+    <h2>Latest Community Posts</h2>
+    {% for post in posts %}
+      <article class="dashboard-panel community-post-card"
+               id="community-post-{{ post.id }}">
+        <div class="community-post-author">
+          <div class="community-avatar" aria-hidden="true">
+            {{ post.author.username|slice:":1"|upper }}
+          </div>
+          <div>
+            <strong><a href="{% url 'public_profile' post.author_id %}">{{ post.author.username }}</a></strong>
+            <p class="community-post-date">
+              {{ post.created_at|date:"M j, Y, g:i a" }}
+            </p>
+          </div>
+        </div>
+
+        <div class="community-post-body">{{ post.body|linebreaksbr }}</div>
+
+        {% if post.photo %}
+          <a class="community-post-photo-link"
+             href="{{ post.photo.url }}" target="_blank" rel="noopener">
+            <img class="community-post-photo"
+                 src="{{ post.photo.url }}"
+                 alt="Photo shared by {{ post.author.username }}"
+                 loading="lazy">
+          </a>
+        {% endif %}
+
+        <div class="community-post-actions">
+          {% if user.is_authenticated %}
+            <form method="post"
+                  action="{% url 'community_post_react' post.id %}">
+              {% csrf_token %}
+              <button class="button community-action-button" type="submit">
+                👍 Like · {{ post.reactions.count }}
+              </button>
+            </form>
+          {% else %}
+            <a class="button community-action-button"
+               href="{% url 'login' %}?next=/community/">
+              👍 Like · {{ post.reactions.count }}
+            </a>
+          {% endif %}
+
+          <a class="button community-action-button"
+             href="#community-comments-{{ post.id }}">
+            <i class="fa-regular fa-comments" aria-hidden="true"></i> Comments · {{ post.comments.count }}
+          </a>
+
+          <button class="button community-action-button"
+                  type="button"
+                  onclick="navigator.clipboard.writeText(window.location.origin + '/community/#community-post-{{ post.id }}').then(() => { this.textContent = 'Link copied!'; }).catch(() => { window.prompt('Copy this post link:', window.location.origin + '/community/#community-post-{{ post.id }}'); })">
+            <i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Share
+          </button>
+        </div>
+
+        {% if user.is_authenticated and post.author_id == user.id %}
+          <div class="community-owner-actions">
+            <a class="button button-orange"
+               href="{% url 'community_post_edit' post.id %}">Edit post</a>
+            <form method="post"
+                  action="{% url 'community_post_delete' post.id %}"
+                  onsubmit="return confirm('Delete this post permanently?');">
+              {% csrf_token %}
+              <button class="button" type="submit">Delete post</button>
+            </form>
+          </div>
+        {% endif %}
+
+        <section class="community-comment-list"
+                 id="community-comments-{{ post.id }}">
+          <h3>Discussion ({{ post.comments.count }})</h3>
+
+          {% for comment in post.comments.all %}
+            {% if not comment.parent_id %}
+              <div class="community-comment">
+                <div class="community-comment-heading">
+                  <strong>{{ comment.author.username }}</strong>
+                  <small>{{ comment.created_at|date:"M j, Y, g:i a" }}</small>
+                </div>
+                <div class="community-comment-body">{{ comment.body|linebreaksbr }}</div>
+
+                <div class="community-comment-actions">
+                  {% if user.is_authenticated %}
+                    <form method="post"
+                          action="{% url 'community_comment_react' comment.id %}">
+                      {% csrf_token %}
+                      <button class="community-text-action" type="submit">
+                        👍 Like ({{ comment.reactions.count }})
+                      </button>
+                    </form>
+                    <button class="community-text-action" type="button"
+                            onclick="var f=document.getElementById('reply-form-{{ comment.id }}'); f.hidden=!f.hidden;">
+                      Reply
+                    </button>
+                  {% else %}
+                    <a href="{% url 'login' %}?next=/community/">Log in to react or reply</a>
+                  {% endif %}
+                </div>
+
+                {% for reply in comment.replies.all %}
+                  <div class="community-reply">
+                    <div class="community-comment-heading">
+                      <strong>{{ reply.author.username }}</strong>
+                      <small>{{ reply.created_at|date:"M j, Y, g:i a" }}</small>
+                    </div>
+                    <div class="community-comment-body">{{ reply.body|linebreaksbr }}</div>
+                    {% if user.is_authenticated %}
+                      <form method="post"
+                            action="{% url 'community_comment_react' reply.id %}">
+                        {% csrf_token %}
+                        <button class="community-text-action" type="submit">
+                          👍 Like ({{ reply.reactions.count }})
+                        </button>
+                      </form>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+
+                {% if user.is_authenticated %}
+                  <form id="reply-form-{{ comment.id }}"
+                        class="community-reply-form"
+                        method="post"
+                        action="{% url 'community_comment_reply' comment.id %}"
+                        hidden>
+                    {% csrf_token %}
+                    <label for="reply-body-{{ comment.id }}">Write a reply</label>
+                    <textarea id="reply-body-{{ comment.id }}" name="body"
+                              maxlength="2000" rows="2" required
+                              placeholder="Reply respectfully..."></textarea>
+                    <button class="button button-orange" type="submit">Send reply</button>
+                  </form>
+                {% endif %}
+              </div>
+            {% endif %}
+          {% empty %}
+            <p class="community-no-comments">No comments yet. Start the discussion.</p>
+          {% endfor %}
+
+          {% if user.is_authenticated %}
+            <form class="community-comment-form" method="post"
+                  action="{% url 'community_comment_create' post.id %}">
+              {% csrf_token %}
+              <label for="comment-body-{{ post.id }}">Add a comment</label>
+              <textarea id="comment-body-{{ post.id }}" name="body"
+                        maxlength="2000" rows="2" required
+                        placeholder="Share a helpful thought..."></textarea>
+              <button class="button button-orange" type="submit">Comment</button>
+            </form>
+          {% else %}
+            <p><a href="{% url 'login' %}?next=/community/">Log in</a> to join the discussion.</p>
+          {% endif %}
+        </section>
+      </article>
+    {% empty %}
+      <p class="empty-inline">No community posts yet. Be the first to share something.</p>
+    {% endfor %}
+  </section>
+
+  <section style="margin:24px 0;">
+    <h2>Open requests</h2>
+    <form method="get" action="{% url 'community' %}" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;">
+      <label for="state-filter">Filter by state</label>
+      <select id="state-filter" name="state">
+        <option value="">All states</option>
+        {% for value, label in state_choices %}
+          <option value="{{ value }}" {% if state == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button class="button button-orange" type="submit">Filter</button>
+      <a href="{% url 'community' %}">Clear</a>
+    </form>
+
+
+<style>
+.community-request-card:target {
+  outline: 3px solid #f28c28;
+  outline-offset: 4px;
+  background-color: rgba(242, 140, 40, 0.10);
+  scroll-margin-top: 100px;
+  animation: buildspot-request-highlight 2.5s ease-out;
+}
+@keyframes buildspot-request-highlight {
+  0%, 45% { box-shadow: 0 0 0 7px rgba(242, 140, 40, .25); }
+  100% { box-shadow: 0 0 0 0 rgba(242, 140, 40, 0); }
+}
+</style>
+
+{% for item in requests %}
+      <article id="material-request-{{ item.id }}" class="dashboard-panel community-request-card" style="padding:18px;margin:14px 0;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div>
+            <h3 style="margin:0;">{{ item.material }}</h3>
+            <p style="margin:6px 0 0;">
+              Requested by
+              <a href="{% url 'public_profile' item.buyer_id %}">{{ item.buyer.username }}</a>
+            </p>
+          </div>
+          {% if item.buyer_whatsapp_link_number %}
+            <a href="https://wa.me/{{ item.buyer_whatsapp_link_number }}?text=Hello%2C%20I%20saw%20your%20BuildSpot%20request."
+               target="_blank" rel="noopener noreferrer"
+               aria-label="Contact buyer about {{ item.material }} on WhatsApp"
+               title="Contact buyer on WhatsApp"
+               style="display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border-radius:22px;background:#25D366;color:#fff;text-decoration:none;font-weight:600;">
+              <span aria-hidden="true" style="font-size:20px;">☏</span>
+              <span>WhatsApp buyer</span>
+            </a>
+          {% endif %}
+        </div>
+        {% if item.photo %}
+          <p>
+            <img src="{{ item.photo.url }}" alt="Photo for {{ item.material }}"
+                 loading="lazy"
+                 style="max-width:100%;width:360px;max-height:260px;object-fit:contain;border-radius:10px;">
+          </p>
+        {% endif %}
+        <p><strong>Quantity:</strong> {{ item.quantity }}</p>
+        <p><strong>Delivery area:</strong> {{ item.city|default:"Anywhere in the state" }}, {{ item.state }}</p>
+        <p class="muted"><small>For privacy, the exact delivery address is not shown publicly.</small></p>
+        {% if item.requirements %}<p><strong>Requirements:</strong> {{ item.requirements|linebreaksbr }}</p>{% endif %}
+        <p><small>Posted {{ item.created_at|date:"M j, Y, g:i a" }}</small></p>
+
+        {% if user.is_authenticated and item.buyer_id == user.id and item.status == "open" %}
+          <form method="post" action="{% url 'community_request_close' item.id %}">
+            {% csrf_token %}
+            <button class="button button-orange" type="submit">Mark as fulfilled</button>
+          </form>
+        {% endif %}
+
+
+      </article>
+    {% empty %}
+      <p>No open requests found for this filter. You can be the first to post one.</p>
+    {% endfor %}
+  </section>
+
+  <section class="community-directory" style="margin:28px 0;">
+    <h2>Public Seller Directory{% if state %} — {{ state }}{% else %} — Across Nigeria{% endif %}</h2>
+    <p>Discover active businesses and visit their public showrooms. Private account details are not displayed here.</p>
+    <div class="community-store-grid">
+      {% for store in stores %}
+        <article class="community-store-card">
+          <a class="community-store-logo" href="{% url 'store_detail' store.slug %}" aria-label="Visit {{ store.business_name }}">
+            {% if store.logo %}
+              <img src="{{ store.logo.url }}" alt="{{ store.business_name }} logo" loading="lazy">
+            {% else %}
+              <span>{{ store.business_name|slice:":1"|upper }}</span>
+            {% endif %}
+          </a>
+          <div class="community-store-info">
+            <h3><a href="{% url 'store_detail' store.slug %}">{{ store.business_name }}</a></h3>
+            <p>{{ store.city }}, {{ store.state }}</p>
+            {% if store.description %}<p>{{ store.description|truncatechars:110 }}</p>{% endif %}
+            <a class="button button-orange community-open-store" href="{% url 'store_detail' store.slug %}">View Store</a>
+          </div>
+        </article>
+      {% empty %}
+        <p class="empty-inline">No active public stores found for this selection yet.</p>
+      {% endfor %}
+    </div>
+    <p><a href="{% url 'market' %}">Browse the full store directory</a></p>
+  </section>
+
+
+
+</div>
+<script>
+/* buildspot-community-no-jump-v1 */
+(function () {
+  "use strict";
+
+  if (window.__buildspotCommunityNoJumpInstalled) return;
+  window.__buildspotCommunityNoJumpInstalled = true;
+
+  const socialFormSelector = [
+    'form[action*="/react/"]',
+    'form[action*="/comment/"]',
+    'form[action*="/reply/"]'
+  ].join(",");
+
+  document.addEventListener("submit", async function (event) {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement)) return;
+    if (!form.matches(socialFormSelector)) return;
+
+    event.preventDefault();
+
+    if (form.dataset.submitting === "1") return;
+    form.dataset.submitting = "1";
+
+    const submitButton = event.submitter;
+    const oldButtonText = submitButton ? submitButton.textContent : "";
+    const originalScrollY = window.scrollY;
+    const postCard = form.closest(".community-post-card");
+    const postId = postCard ? postCard.id : null;
+
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Updating…";
+    }
+
+    try {
+      const response = await fetch(form.action, {
+        method: "POST",
+        body: new FormData(form),
+        credentials: "same-origin",
+        redirect: "follow",
+        headers: {"X-Requested-With": "XMLHttpRequest"}
+      });
+
+      if (!response.ok) {
+        throw new Error("The request failed (HTTP " + response.status + ").");
+      }
+
+      const responseUrl = new URL(response.url, window.location.href);
+      if (responseUrl.pathname.includes("/login")) {
+        window.location.href = response.url;
+        return;
+      }
+
+      const html = await response.text();
+      const parsed = new DOMParser().parseFromString(html, "text/html");
+      const updatedCard = postId ? parsed.getElementById(postId) : null;
+      const currentCard = postId ? document.getElementById(postId) : null;
+
+      if (!updatedCard || !currentCard) {
+        throw new Error("The updated post could not be found. Please refresh the page.");
+      }
+
+      currentCard.replaceWith(updatedCard);
+
+      // Keep the user at the same screen position after the card updates.
+      window.scrollTo({top: originalScrollY, left: 0, behavior: "instant"});
+
+      const status = document.createElement("p");
+      status.className = "community-ajax-status";
+      status.setAttribute("role", "status");
+      status.textContent = "Updated successfully.";
+      const refreshedCard = document.getElementById(postId);
+      if (refreshedCard) {
+        refreshedCard.prepend(status);
+        window.setTimeout(() => status.remove(), 3500);
+      }
+    } catch (error) {
+      console.error("BuildSpot community action:", error);
+      window.alert(error.message || "Unable to update this action. Please try again.");
+    } finally {
+      // The original form may have been replaced, so clean up the old form too.
+      delete form.dataset.submitting;
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = oldButtonText;
+      }
+    }
+  });
+})();
+</script>
+{% endblock %}

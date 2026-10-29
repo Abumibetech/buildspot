@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Store, Category, Product, Enquiry, Advertisement
+from .models import Store, Category, Product, Enquiry, Advertisement, CommunityPost, BuyerProfile
 @admin.register(Store)
 class StoreAdmin(admin.ModelAdmin): list_display=("business_name","owner","city","state","verification_status","is_active"); list_filter=("verification_status","state","is_active"); search_fields=("business_name","owner__username","city","address"); prepopulated_fields={"slug":("business_name",)}
 @admin.register(Product)
@@ -12,3 +12,18 @@ admin.site.register(Category)
 admin.site.site_header="BuildSpot Administration"
 admin.site.site_title="BuildSpot Admin"
 admin.site.index_title="Marketplace management"
+
+
+@admin.register(CommunityPost)
+class CommunityPostAdmin(admin.ModelAdmin):
+    list_display = ("id", "author", "created_at", "updated_at")
+    list_filter = ("created_at",)
+    search_fields = ("author__username", "body")
+    readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(BuyerProfile)
+class BuyerProfileAdmin(admin.ModelAdmin):
+    list_display = ("user", "whatsapp", "created_at")
+    search_fields = ("user__username", "user__email", "whatsapp")
+    readonly_fields = ("created_at",)

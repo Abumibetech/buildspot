@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Store Profile · BuildSpot{% endblock %}
+{% block content %}
+<section class="dashboard-head dashboard-premium-head">
+  <div class="seller-premium-content">
+    <div class="seller-premium-identity">
+      <div class="seller-premium-logo">
+        {% if store.logo %}
+          <img src="{{ store.logo.url }}" alt="{{ store.business_name }} logo">
+        {% else %}
+          <span>{{ store.business_name|first|upper }}</span>
+        {% endif %}
+      </div>
+      <div class="seller-premium-copy">
+        <span class="seller-premium-eyebrow">YOUR BUSINESS PROFILE</span>
+        <h1>Edit <em>Store Profile</em></h1>
+        <p>These details appear above your digital showroom.</p>
+        <div class="seller-premium-badges">
+          <span class="seller-premium-status {% if store.verification_status == 'verified' %}is-verified{% endif %}">
+            {% if store.verification_status == 'verified' %}Verified seller{% else %}{{ store.get_verification_status_display }}{% endif %}
+          </span>
+          <span class="seller-premium-location">
+            <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+            {{ store.city|default:"Location not added" }}, {{ store.state|default:"Nigeria" }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="simple-form">
+  <div class="form-card wide-form">
+    <span class="eyebrow">SHOWROOM SETTINGS</span>
+    <h1>Tell buyers about your store</h1>
+    <p>Update your business information, contact details and store logo.</p>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-grid">
+        {% for field in form %}
+          <div class="form-field {% if field.name == 'description' or field.name == 'address' %}field-wide{% endif %}">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<small class="help-text">{{ field.help_text }}</small>{% endif %}
+            {% for error in field.errors %}<small class="error">{{ error }}</small>{% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+      {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}<p class="error">{{ error }}</p>{% endfor %}
+      {% endif %}
+      <div class="form-actions">
+        <button class="button button-orange" type="submit">
+          <i class="fa-solid fa-check" aria-hidden="true"></i> Save Changes
+        </button>
+        <a class="button button-outline" href="{% url 'seller_dashboard' %}">Back to Dashboard</a>
+      </div>
+    </form>
+
+    <p class="form-foot">
+      <a href="{{ store.get_absolute_url }}" target="_blank" rel="noopener noreferrer">View your public showroom ↗</a>
+    </p>
+  </div>
+</section>
+{% endblock %}

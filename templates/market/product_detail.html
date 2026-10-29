@@ -1,7 +1,25 @@
-{% extends 'base.html' %}{% block title %}{{ product.name }} · BuildSpot{% endblock %}{% block content %}<section class="section product-detail"><div class="detail-image">{% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}<span>▧</span>{% endif %}</div><div class="detail-copy"><span class="eyebrow">{{ product.category|default:'BUILDING MATERIAL' }}</span><h1>{{ product.name }}</h1><div class="detail-price">{% if product.price %}₦{{ product.price|floatformat:2 }} / {{ product.price_unit }}{% else %}Contact seller for price{% endif %}</div><p>{{ product.description|default:'Contact the seller to confirm current price, stock and delivery options.' }}</p><div class="detail-seller"><b>{{ store.business_name }}</b><span>⌖ {{ store.city }}, {{ store.state }}</span><a class="button button-outline" href="{{ store.get_absolute_url }}">Visit full showroom ↗</a></div><a class="button button-outline" href="{{ store.get_absolute_url }}">Back to showroom</a></div></section>
+{% extends 'base.html' %}{% block title %}{{ product.name }} · BuildSpot{% endblock %}{% block extra_head %}
+<meta name="description" content="{{ product.description|default:'View this product on BuildSpot and contact the seller for current pricing and availability.'|striptags|truncatechars:200 }}">
+<meta property="og:title" content="{{ product.name }} · BuildSpot">
+<meta property="og:description" content="{{ product.description|default:'View this product on BuildSpot and contact the seller for current pricing and availability.'|striptags|truncatechars:200 }}">
+<meta property="og:type" content="product">
+<meta property="og:url" content="{{ product_absolute_url }}">
+{% if product_image_absolute_url %}
+<meta property="og:image" content="{{ product_image_absolute_url }}">
+<meta property="og:image:alt" content="{{ product.name }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ product.name }} · BuildSpot">
+<meta name="twitter:description" content="{{ product.description|default:'View this product on BuildSpot and contact the seller for current pricing and availability.'|striptags|truncatechars:200 }}">
+<meta name="twitter:image" content="{{ product_image_absolute_url }}">
+{% else %}
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{{ product.name }} · BuildSpot">
+{% endif %}
+{% endblock %}
+{% block content %}<section class="section product-detail"><div class="detail-image">{% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}<span><i class="fa-regular fa-image" aria-hidden="true"></i></span>{% endif %}</div><div class="detail-copy"><span class="eyebrow">{{ product.category|default:'BUILDING MATERIAL' }}</span><h1>{{ product.name }}</h1><div class="detail-price">{% if product.price %}₦{{ product.price|floatformat:2 }} / {{ product.price_unit }}{% else %}Contact seller for price{% endif %}</div><p>{{ product.description|default:'Contact the seller to confirm current price, stock and delivery options.' }}</p><div class="detail-seller"><b>{{ store.business_name }}</b><span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> {{ store.city }}, {{ store.state }}</span><a class="button button-outline" href="{{ store.get_absolute_url }}">Visit full showroom <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div><a class="button button-outline" href="{{ store.get_absolute_url }}">Back to showroom</a></div></section>
 {% if store.whatsapp_link_number %}
 <a class="buildspot-floating-whatsapp"
-   href="https://wa.me/{{ store.whatsapp_link_number }}?text=Hello%2C%20I%20am%20interested%20in%20{{ product.name|urlencode }}%20on%20BuildSpot.%20Please%20share%20price%20and%20availability."
+   href="https://wa.me/{{ store.whatsapp_link_number }}?text={{ whatsapp_message|urlencode }}"
    target="_blank" rel="noopener noreferrer"
    aria-label="Ask the seller about this product on WhatsApp"
    title="Ask the seller about this product on WhatsApp">

@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.utils.text import slugify
 
-from .models import Store, Product, Enquiry
+from .models import Store, Product, Enquiry, MaterialRequest, SellerQuotation, CommunityPost, BuyerProfile
 
 STATE_CHOICES = [
     ('Abia', 'Abia'),
@@ -52,7 +52,22 @@ class SellerSignupForm(UserCreationForm):
     email = forms.EmailField()
     business_name = forms.CharField(max_length=160)
     phone = forms.CharField(max_length=30)
-    state = forms.ChoiceField(choices=STATE_CHOICES)
+    whatsapp = forms.CharField(
+        label="WhatsApp number",
+        required=False,
+        max_length=30,
+        widget=forms.TextInput(attrs={
+            "type": "tel",
+            "autocomplete": "tel",
+            "placeholder": "e.g. +2348012345678",
+        }),
+        help_text="Optional. Include your country code so buyers can reach you.",
+    )
+    state = forms.ChoiceField(
+        choices=STATE_CHOICES,
+        label="State where your shop is located",
+        help_text="Choose the state where your shop operates. This is not your state of origin.",
+    )
     description = forms.CharField(
         label="What do you do?",
         required=False,
@@ -68,6 +83,10 @@ class SellerSignupForm(UserCreationForm):
         }),
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].help_text = ""
+
     class Meta:
         model = User
         fields = ("username", "email", "password1", "password2")
@@ -80,8 +99,55 @@ class SellerSignupForm(UserCreationForm):
         return user
 
 
+
+class BuyerSignupForm(UserCreationForm):
+    email = forms.EmailField(
+        label="Email address",
+        widget=forms.EmailInput(attrs={
+            "autocomplete": "email",
+            "placeholder": "you@example.com",
+        }),
+    )
+    whatsapp = forms.CharField(
+        label="WhatsApp number",
+        required=False,
+        max_length=30,
+        widget=forms.TextInput(attrs={
+            "autocomplete": "tel",
+            "placeholder": "e.g. 08012345678",
+        }),
+        help_text="Optional. Add your WhatsApp number so you can be contacted when needed.",
+    )
+
+    class Meta:
+        model = User
+        fields = ("username", "email", "password1", "password2")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].help_text = ""
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data["email"]
+        whatsapp = (self.cleaned_data.get("whatsapp") or "").strip()
+
+        if commit:
+            user.save()
+            BuyerProfile.objects.update_or_create(
+                user=user,
+                defaults={"whatsapp": whatsapp},
+            )
+
+        return user
+
+
 class StoreForm(forms.ModelForm):
-    state = forms.ChoiceField(choices=STATE_CHOICES)
+    state = forms.ChoiceField(
+        choices=STATE_CHOICES,
+        label="State where your shop is located",
+        help_text="Choose the state where your shop operates. This is not your state of origin.",
+    )
     address = forms.CharField(
         max_length=255,
         widget=forms.TextInput(attrs={
@@ -168,3 +234,110 @@ class EnquiryForm(forms.ModelForm):
                 "placeholder": "Tell the seller what you need..."
             })
         }
+
+
+class MaterialRequestForm(forms.ModelForm):
+    state = forms.ChoiceField(
+        choices=STATE_CHOICES,
+        help_text="Choose the state where the materials are needed.",
+    )
+    city = forms.CharField(
+        required=False,
+        help_text=(
+            "Optional city for context. Active sellers throughout the selected state "
+            "will be notified."
+        ),
+        widget=forms.TextInput(attrs={"placeholder": "e.g. Kano (optional)"}),
+    )
+
+    class Meta:
+        model = MaterialRequest
+        fields = [
+            "state",
+            "city",
+            "delivery_location",
+            "buyer_whatsapp",
+            "material",
+            "quantity",
+            "requirements",
+            "photo",
+        ]
+        widgets = {
+            "city": forms.TextInput(attrs={"placeholder": "e.g. Kano"}),
+            "photo": forms.ClearableFileInput(attrs={"accept": "image/*"}),
+            "delivery_location": forms.TextInput(
+                attrs={"placeholder": "Enter the delivery area or address"}
+            ),
+            "buyer_whatsapp": forms.TextInput(
+                attrs={"placeholder": "Optional, e.g. 08012345678"}
+            ),
+            "material": forms.TextInput(
+                attrs={"placeholder": "e.g. Cement, iron rods, roofing sheets"}
+            ),
+            "quantity": forms.TextInput(
+                attrs={"placeholder": "e.g. 100 bags, 2 tonnes, 20 pieces"}
+            ),
+            "requirements": forms.Textarea(
+                attrs={
+                    "rows": 4,
+                    "placeholder": "Describe quality, brand, specifications or other requirements.",
+                }
+            ),
+        }
+
+
+class SellerQuotationForm(forms.ModelForm):
+    class Meta:
+        model = SellerQuotation
+        fields = [
+            "price",
+            "price_unit",
+            "delivery_days",
+            "delivery_details",
+            "message",
+        ]
+        widgets = {
+            "price": forms.NumberInput(
+                attrs={"min": "0.01", "step": "0.01", "placeholder": "Total price in naira"}
+            ),
+            "price_unit": forms.TextInput(
+                attrs={"placeholder": "e.g. total, per bag, per tonne"}
+            ),
+            "delivery_days": forms.NumberInput(
+                attrs={"min": "0", "step": "1", "placeholder": "Estimated delivery days"}
+            ),
+            "delivery_details": forms.TextInput(
+                attrs={"placeholder": "Delivery fee or delivery arrangements"}
+            ),
+            "message": forms.Textarea(
+                attrs={"rows": 3, "placeholder": "Additional details for the buyer"}
+            ),
+        }
+
+    def clean_price(self):
+        price = self.cleaned_data["price"]
+        if price <= 0:
+            raise forms.ValidationError("Enter a price greater than zero.")
+        return price
+
+
+class CommunityPostForm(forms.ModelForm):
+    class Meta:
+        model = CommunityPost
+        fields = ["body", "photo"]
+        widgets = {
+            "body": forms.Textarea(attrs={
+                "rows": 4,
+                "maxlength": 3000,
+                "placeholder": "Share a building tip, project update, question or market news...",
+            }),
+            "photo": forms.ClearableFileInput(attrs={
+                "accept": "image/*",
+            }),
+        }
+
+    def clean_body(self):
+        body = self.cleaned_data["body"].strip()
+        if not body:
+            raise forms.ValidationError("Write something before publishing.")
+        return body

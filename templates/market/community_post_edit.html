@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-panel" style="max-width:800px;margin:24px auto;padding:24px;">
+  <h1>Edit Community Post</h1>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% for field in form %}
+      <div style="margin-bottom:16px;">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% for error in field.errors %}<p style="color:#b42318;">{{ error }}</p>{% endfor %}
+      </div>
+    {% endfor %}
+    <button class="button button-orange" type="submit">Save Changes</button>
+    <a href="{% url 'community' %}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

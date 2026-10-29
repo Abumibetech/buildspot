@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f97316">
+  <title>{{ item.material }} — BuildSpot</title>
+  <style>
+    :root {
+      --orange: #f97316;
+      --orange-dark: #c2410c;
+      --cream: #fff7ed;
+      --ink: #292524;
+      --muted: #78716c;
+      --border: #fed7aa;
+      --green: #15803d;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #fffaf5;
+      color: var(--ink);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                   Arial, sans-serif;
+      line-height: 1.65;
+    }
+
+    a { color: var(--orange-dark); }
+
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid #f3e8dc;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .topbar-inner {
+      max-width: 1120px;
+      min-height: 76px;
+      margin: auto;
+      padding: 12px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      text-decoration: none;
+      color: var(--ink);
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 13px;
+      background: var(--orange);
+      color: white;
+      font-weight: 900;
+      font-size: 21px;
+      box-shadow: 0 5px 12px #f9731633;
+    }
+
+    .brand-name { font-size: 21px; font-weight: 850; letter-spacing: -.6px; }
+    .brand-sub { display: block; color: var(--muted); font-size: 11px; margin-top: -3px; }
+
+    .nav-links { display: flex; align-items: center; gap: 10px; }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 15px;
+      border: 1px solid #e7ddd3;
+      border-radius: 11px;
+      background: white;
+      color: #44403c;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 750;
+      transition: .18s ease;
+    }
+
+    .nav-btn:hover { border-color: var(--orange); color: var(--orange-dark); }
+
+    .page {
+      max-width: 1080px;
+      margin: 30px auto 64px;
+      padding: 0 22px;
+    }
+
+    .breadcrumb {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 22px;
+      color: #a8a29e;
+      font-size: 13px;
+    }
+
+    .breadcrumb a { text-decoration: none; font-weight: 700; }
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    .intro { margin-bottom: 22px; }
+    .eyebrow {
+      color: var(--orange-dark);
+      font-size: 11px;
+      font-weight: 850;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+    }
+
+    .intro h1 {
+      margin: 5px 0 4px;
+      font-size: clamp(27px, 4vw, 39px);
+      line-height: 1.2;
+      letter-spacing: -1.1px;
+      overflow-wrap: anywhere;
+    }
+
+    .intro p { margin: 8px 0 0; color: var(--muted); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(280px, .85fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .card {
+      min-width: 0;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid #f0e5d9;
+      border-radius: 20px;
+      box-shadow: 0 9px 28px #713f1210;
+    }
+
+    .photo-wrap {
+      min-height: 230px;
+      display: grid;
+      place-items: center;
+      padding: 12px;
+      background: #fff4e6;
+      border-bottom: 1px solid #f4e5d4;
+    }
+
+    .photo {
+      display: block;
+      width: 100%;
+      max-height: 440px;
+      object-fit: contain;
+      border-radius: 12px;
+    }
+
+    .photo-placeholder {
+      padding: 48px 15px;
+      color: #9a6a43;
+      text-align: center;
+    }
+
+    .photo-placeholder .symbol { font-size: 40px; display: block; }
+
+    .card-body { padding: 24px; }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 11px;
+      border-radius: 30px;
+      background: #dcfce7;
+      color: #166534;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .status::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #16a34a;
+    }
+
+    .status.closed { background: #f5f5f4; color: #57534e; }
+    .status.closed::before { background: #a8a29e; }
+
+    .section-title {
+      margin: 0 0 15px;
+      font-size: 16px;
+      letter-spacing: -.2px;
+    }
+
+    .requester {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 19px 0 22px;
+      padding: 15px;
+      background: #fffbf6;
+      border: 1px solid #f5e8d9;
+      border-radius: 14px;
+    }
+
+    .avatar {
+      display: grid;
+      place-items: center;
+      flex: 0 0 43px;
+      height: 43px;
+      border-radius: 50%;
+      background: #ffedd5;
+      color: #9a3412;
+      font-weight: 850;
+      font-size: 17px;
+    }
+
+    .requester small, .detail-label {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .7px;
+      text-transform: uppercase;
+    }
+
+    .requester a { font-weight: 800; text-decoration: none; }
+    .requester a:hover { text-decoration: underline; }
+
+    .details {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 23px;
+    }
+
+    .detail-box {
+      padding: 15px;
+      border: 1px solid #f0e5d9;
+      border-radius: 13px;
+      background: #fff;
+      overflow-wrap: anywhere;
+    }
+
+    .detail-value {
+      display: block;
+      margin-top: 5px;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .requirements {
+      margin-top: 20px;
+      padding: 19px;
+      border-radius: 14px;
+      background: #fff7ed;
+      border: 1px solid #ffedd5;
+    }
+
+    .requirements p { margin: 0; white-space: normal; overflow-wrap: anywhere; }
+
+    .posted {
+      margin: 20px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .sidebar { position: sticky; top: 98px; }
+
+    .contact-card {
+      padding: 23px;
+      background: linear-gradient(150deg, #fff7ed, #fff);
+      border: 1px solid #fed7aa;
+    }
+
+    .contact-icon {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
+      background: #ffedd5;
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+
+    .contact-card h2 { margin: 0 0 7px; font-size: 20px; line-height: 1.3; }
+    .contact-card > p { margin: 0 0 20px; color: var(--muted); font-size: 13px; }
+
+    .button {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 14px 16px;
+      border: 0;
+      border-radius: 12px;
+      text-align: center;
+      text-decoration: none;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 850;
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .button:hover { transform: translateY(-1px); box-shadow: 0 6px 15px #00000012; }
+    .button-orange { background: var(--orange); color: white; }
+    .button-orange:hover { background: #ea580c; color: white; }
+    .button-green { background: var(--green); color: white; }
+    .button-green:hover { background: #166534; color: white; }
+    .button-light { background: white; border: 1px solid #e7ddd3; color: #44403c; }
+    .button-light:hover { border-color: var(--orange); color: var(--orange-dark); }
+
+    .button + .button, .action-form { margin-top: 10px; }
+    .action-form { width: 100%; }
+
+    .privacy-note {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .bottom-nav {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .bottom-nav .button { flex: 1; font-size: 12px; padding: 12px 8px; }
+
+    .footer {
+      padding: 23px 20px;
+      border-top: 1px solid #f0e5d9;
+      color: #a8a29e;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    @media (max-width: 760px) {
+      .topbar-inner { min-height: 66px; padding: 10px 15px; }
+      .brand-mark { width: 39px; height: 39px; }
+      .brand-name { font-size: 19px; }
+      .brand-sub { font-size: 10px; }
+      .nav-links { gap: 6px; }
+      .nav-btn { padding: 9px 10px; font-size: 12px; }
+      .page { margin: 21px auto 38px; padding: 0 14px; }
+      .layout { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+      .sidebar { position: static; }
+      .photo-wrap { min-height: 180px; }
+      .photo { max-height: 330px; }
+      .card-body { padding: 19px; }
+      .contact-card { padding: 20px; }
+      .bottom-nav { margin-top: 16px; }
+    }
+
+    @media (max-width: 390px) {
+      .brand-sub { display: none; }
+      .nav-btn { padding: 8px; }
+      .details { grid-template-columns: minmax(0, 1fr); }
+      .bottom-nav { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="BuildSpot home">
+        <span class="brand-mark">B</span>
+        <span>
+          <span class="brand-name">BuildSpot</span>
+          <span class="brand-sub">Building materials marketplace</span>
+        </span>
+      </a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a class="nav-btn" href="/community/">← Community</a>
+        <a class="nav-btn" href="/">⌂ Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="breadcrumb">
+      <a href="/">Home</a><span>›</span>
+      <a href="/community/">Community</a><span>›</span>
+      <span>Buyer request</span>
+    </div>
+
+    <section class="intro">
+      <span class="eyebrow">BuildSpot Community</span>
+      <h1>{{ item.material }}</h1>
+      <p>Review the buyer's requirements and see whether you can supply this material.</p>
+    </section>
+
+    <div class="layout">
+      <article class="card">
+        {% if item.photo %}
+          <div class="photo-wrap">
+            <a href="{{ item.photo.url }}" target="_blank" rel="noopener noreferrer"
+               aria-label="Open request photo">
+              <img class="photo" src="{{ item.photo.url }}"
+                   alt="Photo of requested {{ item.material }}" loading="lazy">
+            </a>
+          </div>
+        {% else %}
+          <div class="photo-wrap">
+            <div class="photo-placeholder">
+              <span class="symbol">▧</span>
+              <strong>No reference photo provided</strong>
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="card-body">
+          <span class="status{% if item.status != 'open' %} closed{% endif %}">
+            {{ item.get_status_display }}
+          </span>
+
+          <div class="requester">
+            <div class="avatar" aria-hidden="true">
+              {{ item.buyer.username|first|upper }}
+            </div>
+            <div>
+              <small>Requested by</small>
+              <a href="{% url 'public_profile' item.buyer_id %}">
+                {{ item.buyer.username }}
+              </a>
+            </div>
+          </div>
+
+          <h2 class="section-title">Request details</h2>
+          <div class="details">
+            <div class="detail-box">
+              <span class="detail-label">Quantity required</span>
+              <span class="detail-value">{{ item.quantity }}</span>
+            </div>
+            <div class="detail-box">
+              <span class="detail-label">Delivery area</span>
+              <span class="detail-value">
+                {{ item.city|default:"Within the state" }}, {{ item.state }}
+              </span>
+            </div>
+          </div>
+
+          {% if item.requirements %}
+            <section class="requirements">
+              <h2 class="section-title">Buyer's requirements</h2>
+              <p>{{ item.requirements|linebreaksbr }}</p>
+            </section>
+          {% endif %}
+
+          <p class="posted">
+            Posted {{ item.created_at|date:"M j, Y, g:i a" }}.
+            The exact delivery address is not shown publicly.
+          </p>
+        </div>
+      </article>
+
+      <aside class="sidebar">
+        <section class="card contact-card">
+          <div class="contact-icon" aria-hidden="true">💬</div>
+          <h2>Can you supply this?</h2>
+          <p>Contact the buyer to discuss product availability, pricing and delivery arrangements.</p>
+
+          {% if item.buyer_whatsapp_link_number and item.status == "open" %}
+            <a class="button button-green"
+               href="https://wa.me/{{ item.buyer_whatsapp_link_number }}?text=Hello%2C%20I%20saw%20your%20BuildSpot%20request."
+               target="_blank" rel="noopener noreferrer">
+              <span aria-hidden="true">◉</span> Contact buyer on WhatsApp
+            </a>
+          {% elif item.status != "open" %}
+            <p class="privacy-note">This request is no longer open for responses.</p>
+          {% else %}
+            <p class="privacy-note">WhatsApp contact details are not available for this request.</p>
+          {% endif %}
+
+          {% if user.is_authenticated and item.buyer_id == user.id and item.status == "open" %}
+            <form class="action-form" method="post"
+                  action="{% url 'community_request_close' item.id %}"
+                  onsubmit="return confirm('Mark this request as fulfilled?');">
+              {% csrf_token %}
+              <button class="button button-orange" type="submit">
+                ✓ Mark as fulfilled
+              </button>
+            </form>
+          {% endif %}
+
+          <p class="privacy-note">
+            Keep your discussions clear and agree on delivery details before completing a transaction.
+          </p>
+        </section>
+
+        <div class="bottom-nav">
+          <a class="button button-light" href="/community/">← Back to Community</a>
+          <a class="button button-light" href="/">⌂ Home</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    BuildSpot · Connecting buyers and building-material suppliers
+  </footer>
+</body>
+</html>
