@@ -1,1 +1,46 @@
-{% extends 'base.html' %}{% block title %}Find Your Next Store · BuildSpot{% endblock %}{% block content %}<section class="market-hero"><span class="eyebrow">THE BUILDSPOT MARKETPLACE</span><h1>Find your <em>next store.</em></h1><p>Search trusted suppliers, discover materials and connect with the people who can help you build.</p><form class="search-panel" method="get"><label class="search-field"><span><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span><input name="q" value="{{ q }}" placeholder="Search products, materials or store names"></label><label class="filter-field"><small>STATE</small><input name="state" value="{{ state }}" placeholder="e.g. FCT, Lagos"></label><label class="filter-field"><small>CITY / AREA</small><input name="city" value="{{ city }}" placeholder="e.g. Wuse, Ikeja"></label><button class="button button-orange" type="submit">Search stores <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></form><div class="search-hint">Popular: <a href="?q=cement">Cement</a><a href="?q=tiles">Tiles</a><a href="?q=paint">Paint</a><a href="?q=roofing">Roofing</a></div></section>{% for ad in ads %}<a class="ad-banner" href="{{ ad.target_url }}" target="_blank" rel="noopener"><img src="{{ ad.image.url }}" alt="{{ ad.title }}"><span>Sponsored · {{ ad.title }}</span></a>{% endfor %}<section class="section market-results"><div class="section-heading"><div><span class="eyebrow">SUPPLIER DIRECTORY</span><h2>Stores across Nigeria <span class="count-pill">{{ stores|length }}</span></h2><p>Open a showroom to see products, store details and contact options.</p></div><a class="button button-outline" href="{% url 'signup' %}">+ List your store</a></div><div class="store-grid">{% for store in stores %}<a class="store-card" href="{{ store.get_absolute_url }}"><div class="store-card-top">{% if store.logo %}<img src="{{ store.logo.url }}" alt="{{ store.business_name }} logo">{% else %}<div class="store-initial">{{ store.business_name|first|upper }}</div>{% endif %}<span class="verify {% if store.verification_status == 'verified' %}verified{% endif %}">{% if store.verification_status == 'verified' %}<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Verified{% else %}Supplier{% endif %}</span></div><h3>{{ store.business_name }}</h3><p><i class="fa-solid fa-location-dot" aria-hidden="true"></i> {{ store.address }}, {{ store.city }}, {{ store.state|lower }}</p><div class="store-card-bottom"><span>{{ store.product_count }} products</span><b>View showroom <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></b></div></a>{% empty %}<div class="empty-state"><div><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></div><h3>No stores match that search yet.</h3><p>Try a different product, state or city, or clear your filters.</p><a class="button button-outline" href="{% url 'market' %}">Clear filters</a></div>{% endfor %}</div></section>{% endblock %}
+{% extends 'base.html' %}{% block title %}Find Your Next Store · BuildSpot{% endblock %}{% block content %}<section class="market-hero"><span class="eyebrow">THE BUILDSPOT MARKETPLACE</span><h1>Find your <em>next store.</em></h1><p>Search trusted suppliers, discover materials and connect with the people who can help you build.</p><form class="search-panel" method="get"><label class="search-field"><span><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span><input name="q" value="{{ q }}" placeholder="Search products, materials, store names or showroom sections"></label><label class="filter-field"><small>STATE</small><input name="state" value="{{ state }}" placeholder="e.g. FCT, Lagos"></label><label class="filter-field"><small>CITY / AREA</small><input name="city" value="{{ city }}" placeholder="e.g. Wuse, Ikeja"></label><button class="button button-orange" type="submit">Search stores <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></form><div class="search-hint">Popular: <a href="?q=cement">Cement</a><a href="?q=tiles">Tiles</a><a href="?q=paint">Paint</a><a href="?q=roofing">Roofing</a></div></section>{% for ad in ads %}<a class="ad-banner" href="{{ ad.target_url }}" target="_blank" rel="noopener"><img src="{{ ad.image.url }}" alt="{{ ad.title }}"><span>Sponsored · {{ ad.title }}</span></a>{% endfor %}
+{% if q %}
+<section class="section market-results showroom-search-results">
+  <div class="section-heading">
+    <div>
+      <span class="eyebrow">SELLER SHOWROOM COLLECTIONS</span>
+      <h2>Matching showroom sections</h2>
+      <p>Open a specific collection directly inside a seller's showroom.</p>
+    </div>
+    <span class="count-pill">{{ matching_sections|length }}</span>
+  </div>
+
+  <div class="store-grid">
+    {% for section in matching_sections %}
+      <a class="store-card" href="{{ section.store.get_absolute_url }}?section={{ section.slug|urlencode }}">
+        <div class="store-card-top">
+          {% if section.cover_image %}
+            <img src="{{ section.cover_image.url }}" alt="{{ section.name }}">
+          {% elif section.store.logo %}
+            <img src="{{ section.store.logo.url }}" alt="{{ section.store.business_name }}">
+          {% else %}
+            <div class="store-initial">{{ section.name|first|upper }}</div>
+          {% endif %}
+          <span class="verify">Showroom section</span>
+        </div>
+        <h3>{{ section.name }}</h3>
+        <p><strong>{{ section.store.business_name }}</strong></p>
+        <p><i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+          {{ section.store.city }}, {{ section.store.state }}
+        </p>
+        {% if section.description %}
+          <p>{{ section.description|truncatewords:16 }}</p>
+        {% endif %}
+        <div class="store-card-bottom">
+          <span>{{ section.product_count }} available product{{ section.product_count|pluralize }}</span>
+          <b>Open section <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></b>
+        </div>
+      </a>
+    {% empty %}
+      <p class="muted">No showroom sections matched this search and location.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="section market-results"><div class="section-heading"><div><span class="eyebrow">SUPPLIER DIRECTORY</span><h2>Stores across Nigeria <span class="count-pill">{{ stores|length }}</span></h2><p>Open a showroom to see products, store details and contact options.</p></div><a class="button button-outline" href="{% url 'signup' %}">+ List your store</a></div><div class="store-grid">{% for store in stores %}<a class="store-card" href="{{ store.get_absolute_url }}"><div class="store-card-top">{% if store.logo %}<img src="{{ store.logo.url }}" alt="{{ store.business_name }} logo">{% else %}<div class="store-initial">{{ store.business_name|first|upper }}</div>{% endif %}<span class="verify {% if store.verification_status == 'verified' %}verified{% endif %}">{% if store.verification_status == 'verified' %}<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Verified{% else %}Supplier{% endif %}</span></div><h3>{{ store.business_name }}</h3><p><i class="fa-solid fa-location-dot" aria-hidden="true"></i> {{ store.address }}, {{ store.city }}, {{ store.state|lower }}</p><div class="store-card-bottom"><span>{{ store.product_count }} products</span><b>View showroom <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></b></div></a>{% empty %}<div class="empty-state"><div><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></div><h3>No stores match that search yet.</h3><p>Try a different product, state or city, or clear your filters.</p><a class="button button-outline" href="{% url 'market' %}">Clear filters</a></div>{% endfor %}</div></section>{% endblock %}

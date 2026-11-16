@@ -14,7 +14,7 @@ VAPID_PRIVATE_KEY = Path.home() / ".buildspot-vapid" / "private.pem"
 VAPID_CONTACT = "mailto:abumibej@gmail.com"
 
 
-def send_web_push(user_ids, title, body, url="/community/"):
+def send_web_push(user_ids, title, body, url="/community/", subscription_ids=None):
     """
     Send a browser push to subscribed devices belonging to user_ids.
 
@@ -23,11 +23,11 @@ def send_web_push(user_ids, title, body, url="/community/"):
     """
     user_ids = set(user_ids or [])
     if not user_ids:
-        return {"attempted": 0, "sent": 0, "failed": 0}
+        return {"attempted": 0, "sent": 0, "failed": 0, "sent_subscription_ids": []}
 
     if not VAPID_PRIVATE_KEY.is_file():
         logger.error("BuildSpot VAPID private key is missing.")
-        return {"attempted": 0, "sent": 0, "failed": 0}
+        return {"attempted": 0, "sent": 0, "failed": 0, "sent_subscription_ids": []}
 
     payload = json.dumps({
         "title": str(title)[:160],
@@ -37,9 +37,15 @@ def send_web_push(user_ids, title, body, url="/community/"):
 
     subscriptions = PushSubscription.objects.filter(
         user_id__in=user_ids
-    ).only("id", "endpoint", "p256dh", "auth")
+    )
+
+    if subscription_ids is not None:
+        subscriptions = subscriptions.filter(pk__in=subscription_ids)
+
+    subscriptions = subscriptions.only("id", "endpoint", "p256dh", "auth")
 
     attempted = sent = failed = 0
+    sent_subscription_ids = []
 
     for subscription in subscriptions.iterator():
         attempted += 1
@@ -58,6 +64,7 @@ def send_web_push(user_ids, title, body, url="/community/"):
                 timeout=10,
             )
             sent += 1
+            sent_subscription_ids.append(subscription.pk)
         except WebPushException as exc:
             failed += 1
             response = getattr(exc, "response", None)
@@ -83,4 +90,9 @@ def send_web_push(user_ids, title, body, url="/community/"):
                 subscription.pk,
             )
 
-    return {"attempted": attempted, "sent": sent, "failed": failed}
+    return {
+        "attempted": attempted,
+        "sent": sent,
+        "failed": failed,
+        "sent_subscription_ids": sent_subscription_ids,
+    }

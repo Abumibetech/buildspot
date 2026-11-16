@@ -1,9 +1,11 @@
+from django.utils import timezone
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.utils.text import slugify
+from django.core.exceptions import ValidationError
 
-from .models import Store, Product, Enquiry, MaterialRequest, SellerQuotation, CommunityPost, BuyerProfile
+from .models import Store, Product, ShowroomSection, Enquiry, MaterialRequest, SellerQuotation, CommunityPost, BuyerProfile
 
 STATE_CHOICES = [
     ('Abia', 'Abia'),
@@ -195,13 +197,125 @@ class StoreForm(forms.ModelForm):
         return store
 
 
+class MultipleFileInput(forms.FileInput):
+    allow_multiple_selected = True
+
+
+class MultipleImageField(forms.FileField):
+    """Validate genuine image uploads, each no larger than 5 MB."""
+
+    widget = MultipleFileInput
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput(attrs={
+            "accept": "image/*",
+            "multiple": True,
+        }))
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        if not data:
+            return []
+
+        files = data if isinstance(data, (list, tuple)) else [data]
+
+        from PIL import Image, UnidentifiedImageError
+
+        for uploaded in files:
+            if uploaded.size > 5 * 1024 * 1024:
+                raise ValidationError(
+                    f"{uploaded.name}: each gallery image must be 5 MB or smaller."
+                )
+
+            try:
+                uploaded.seek(0)
+                with Image.open(uploaded) as image:
+                    image.verify()
+            except (
+                UnidentifiedImageError,
+                OSError,
+                ValueError,
+                Image.DecompressionBombError,
+            ):
+                raise ValidationError(
+                    f"{uploaded.name}: this file is not a valid supported image."
+                )
+            finally:
+                uploaded.seek(0)
+
+        return files
+
+
+class ShowroomSectionForm(forms.ModelForm):
+    gallery_images = MultipleImageField(
+        required=False,
+        label="Additional showroom images",
+        help_text="You can add as many images as you want. Maximum 5 MB per image.",
+    )
+
+    class Meta:
+        model = ShowroomSection
+        fields = ["name", "description", "cover_image"]
+
+    def clean_gallery_images(self):
+        return self.cleaned_data.get("gallery_images", [])
+
+
 class ProductForm(forms.ModelForm):
+    gallery_images = MultipleImageField(
+        required=False,
+        label="Additional gallery images",
+        help_text="Select up to 8 additional images. Maximum 5 MB per image.",
+    )
+
+    def __init__(self, *args, store=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if store is not None:
+            self.fields["showroom_section"].queryset = (
+                ShowroomSection.objects.filter(store=store)
+            )
+        else:
+            self.fields["showroom_section"].queryset = ShowroomSection.objects.none()
+
     class Meta:
         model = Product
         fields = [
-            "category", "name", "description", "price", "price_unit",
+            "category", "showroom_section", "name", "description", "price", "price_unit",
+            "original_price", "deal_expires_at",
             "image", "video_url", "available",
         ]
+        widgets = {
+            "deal_expires_at": forms.DateTimeInput(
+                attrs={"type": "datetime-local"},
+                format="%Y-%m-%dT%H:%M",
+            ),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        price = cleaned_data.get("price")
+        original_price = cleaned_data.get("original_price")
+        expires_at = cleaned_data.get("deal_expires_at")
+
+        if original_price is not None:
+            if price is None:
+                self.add_error(
+                    "price",
+                    "Enter the current price to advertise a deal."
+                )
+            elif original_price <= price:
+                self.add_error(
+                    "original_price",
+                    "The original price must be higher than the current price."
+                )
+
+        if expires_at is not None and expires_at <= timezone.now():
+            self.add_error(
+                "deal_expires_at",
+                "The deal expiry must be a future date and time."
+            )
+
+        return cleaned_data
 
     def save(self, commit=True):
         product = super().save(commit=False)
@@ -237,6 +351,12 @@ class EnquiryForm(forms.ModelForm):
 
 
 class MaterialRequestForm(forms.ModelForm):
+    gallery_images = MultipleImageField(
+        required=False,
+        label="Additional gallery images",
+        help_text="Select up to 8 additional images. Maximum 5 MB per image.",
+    )
+
     state = forms.ChoiceField(
         choices=STATE_CHOICES,
         help_text="Choose the state where the materials are needed.",
@@ -322,6 +442,12 @@ class SellerQuotationForm(forms.ModelForm):
 
 
 class CommunityPostForm(forms.ModelForm):
+    gallery_images = MultipleImageField(
+        required=False,
+        label="Additional gallery images",
+        help_text="Select up to 8 additional images. Maximum 5 MB per image.",
+    )
+
     class Meta:
         model = CommunityPost
         fields = ["body", "photo"]

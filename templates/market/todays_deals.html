@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+.deals-page{max-width:1200px;margin:0 auto;padding:32px 20px 56px}
+.deals-hero{padding:30px;border-radius:20px;background:linear-gradient(135deg,#fff0df,#fffaf4);border:1px solid #f4d4b5;margin-bottom:28px}
+.deals-hero .eyebrow{color:#b85a16;font-weight:800;letter-spacing:.09em;font-size:.78rem}
+.deals-hero h1{margin:10px 0;font-size:clamp(2rem,5vw,3rem);color:#30251d}
+.deals-hero p{margin:0;color:#655448;max-width:650px}
+.deals-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+.deal-card{display:block;overflow:hidden;border:1px solid #eadfd4;border-radius:16px;background:var(--card-bg,#fff);color:inherit;text-decoration:none;position:relative}
+.deal-photo{height:190px;background:#f7f1eb;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.deal-photo img{width:100%;height:100%;object-fit:cover}
+.deal-photo .no-photo{color:#9c8b7b;font-size:2rem}
+.deal-tag{position:absolute;top:12px;left:12px;background:#c54d22;color:#fff;padding:6px 10px;border-radius:999px;font-size:.78rem;font-weight:800}
+.deal-info{padding:16px}
+.deal-info small{color:#8a7564}
+.deal-info h2{font-size:1.1rem;margin:7px 0 10px}
+.deal-price{font-weight:800;color:#c45a17;font-size:1.1rem}
+.deal-old{margin-left:8px;color:#887d73;text-decoration:line-through;font-size:.88rem;font-weight:500}
+.deal-seller{font-size:.86rem;color:#786a5e;margin-top:10px}
+.deals-empty{padding:30px 20px;border:1px dashed #dfcbb8;border-radius:16px;text-align:center}
+.deals-empty h2{margin-top:0}
+@media(max-width:600px){.deals-page{padding:20px 14px 40px}.deals-hero{padding:22px}}
+</style>
+
+<div class="deals-page">
+  <section class="deals-hero">
+    <span class="eyebrow">BUILDSPOT SPECIAL OFFERS</span>
+    <h1>Today's Deals</h1>
+    <p>Discover building materials with genuine price reductions from active BuildSpot stores.</p>
+  </section>
+
+  {% if deal_products %}
+  <div class="deals-grid">
+    {% for product in deal_products %}
+    <a class="deal-card" href="{% url 'product_detail' product.store.slug product.slug %}">
+      <span class="deal-tag">SAVE {{ product.discount_percent }}%</span>
+      <div class="deal-photo">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+        {% else %}
+          <span class="no-photo"><i class="fa-regular fa-image" aria-hidden="true"></i></span>
+        {% endif %}
+      </div>
+      <div class="deal-info">
+        <small>{{ product.category|default:"Building material" }}</small>
+        <h2>{{ product.name }}</h2>
+        <div class="deal-price">
+          ₦{{ product.price|floatformat:2 }}
+          <span class="deal-old">₦{{ product.original_price|floatformat:2 }}</span>
+        </div>
+        <div class="deal-seller">{{ product.store.business_name }} · {{ product.store.city }}</div>
+        {% if product.deal_expires_at %}
+          <div class="deal-seller">Offer ends {{ product.deal_expires_at|date:"j M Y, g:i A" }}</div>
+        {% endif %}
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="deals-empty">
+    <h2>No active deals just yet</h2>
+    <p>Check back soon for special offers from BuildSpot sellers.</p>
+    <a class="button button-orange" href="{% url 'market' %}">Explore stores</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

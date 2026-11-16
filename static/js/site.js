@@ -48,7 +48,7 @@ window.addEventListener('appinstalled', () => {
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/static/pwa/sw.js').catch(() => {});
+        navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
     });
 }
 
@@ -200,7 +200,7 @@ if ('serviceWorker' in navigator) {
       );
 
       registration = await Promise.race([
-        navigator.serviceWorker.register('/static/pwa/sw.js'),
+        navigator.serviceWorker.register('/sw.js', { scope: '/' }),
         timeout('BuildSpot could not register its service worker. Reload the page and try again.')
       ]);
 

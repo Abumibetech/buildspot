@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }} | BuildSpot{% endblock %}
+{% block extra_head %}
+<meta name="description" content="{{ page_intro|striptags|truncatechars:155 }}">
+<style>
+.info-hero{background:linear-gradient(135deg,#082e59,#104779);color:#fff;padding:65px max(6vw,24px)}
+.info-hero-inner{max-width:1050px;margin:auto}
+.info-hero .eyebrow{color:#ffad70}
+.info-hero h1{font:800 clamp(34px,5vw,54px)/1.12 Manrope,sans-serif;letter-spacing:-1.8px;margin:0 0 14px}
+.info-hero p{max-width:760px;color:#d8e5f2;font-size:16px;line-height:1.8;margin:0}
+.info-wrap{max-width:1050px;margin:0 auto;padding:48px 24px 80px}
+.info-section{padding:26px 0;border-bottom:1px solid var(--line)}
+.info-section:first-child{padding-top:0}
+.info-section h2{font:800 21px Manrope,sans-serif;color:var(--navy);margin:0 0 12px}
+.info-section p,.info-section li{color:var(--muted);font-size:14px;line-height:1.85}
+.info-section p{margin:0 0 12px}
+.info-section p:last-child{margin-bottom:0}
+.info-section ul{padding-left:22px;margin:10px 0}
+.info-contact{margin-top:35px;padding:25px;border-radius:16px;background:#fff3e9;border:1px solid #f8d8c2}
+.info-contact h2{font:800 20px Manrope;color:#082e59;margin:0 0 8px}
+.info-contact p{color:#59697c;font-size:14px;line-height:1.7}
+.info-facebook{display:inline-flex;align-items:center;gap:9px;background:#082e59;color:#fff!important;padding:12px 18px;border-radius:9px;font-weight:800}
+.info-facebook:hover{background:#f36b0a}
+.info-social-panel {
+  margin-top:35px;
+  padding:25px;
+  border-radius:16px;
+  background:#fff3e9;
+  border:1px solid #f8d8c2;
+}
+.info-social-panel h2 {
+  font:800 20px Manrope,sans-serif;
+  color:#082e59;
+  margin:0 0 10px;
+}
+.info-social-panel p {
+  color:#59697c;
+  font-size:14px;
+  line-height:1.7;
+}
+.info-social-links {
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:18px;
+}
+.info-social-links a {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:12px 16px;
+  border-radius:9px;
+  background:#082e59;
+  color:#fff!important;
+  text-decoration:none;
+  font-weight:800;
+}
+.info-social-links a:hover {
+  background:#f36b0a;
+}
+.dark .info-social-panel {
+  background:#1c2734;
+  border-color:#344254;
+}
+.dark .info-social-panel h2 {
+  color:#f3f6fa;
+}
+.dark .info-social-panel p {
+  color:#bdc9d7;
+}
+
+.dark .info-section h2{color:#e7edf5}
+.dark .info-contact{background:#1c2734;border-color:#344254}
+.dark .info-contact h2{color:#f3f6fa}
+.dark .info-contact p{color:#bdc9d7}
+@media(max-width:600px){.info-hero{padding:48px 22px}.info-hero p{font-size:14px}.info-wrap{padding:35px 20px 60px}.info-section h2{font-size:19px}}
+</style>
+{% endblock %}
+{% block content %}
+<section class="info-hero">
+  <div class="info-hero-inner">
+    <span class="eyebrow">BUILDSPOT INFORMATION</span>
+    <h1>{{ page_title }}</h1>
+    <p>{{ page_intro }}</p>
+  </div>
+</section>
+<div class="info-wrap">
+  {% for section in sections %}
+  <section class="info-section">
+    <h2>{{ section.heading }}</h2>
+    {% for paragraph in section.paragraphs %}
+    <p>{{ paragraph }}</p>
+    {% endfor %}
+    {% if section.items %}
+    <ul>{% for item in section.items %}<li>{{ item }}</li>{% endfor %}</ul>
+    {% endif %}
+  </section>
+  {% endfor %}
+
+  {% if page_title == "Contact BuildSpot" %}
+  <section class="info-social-panel">
+    <h2>Connect with BuildSpot</h2>
+    <p>Follow our official social media pages for updates, announcements and marketplace information. You can also email our team directly.</p>
+    <div class="info-social-links">
+      <a href="https://www.facebook.com/profile.php?id=61595890446010" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-facebook" aria-hidden="true"></i> Facebook</a>
+      <a href="https://www.instagram.com/buildspot.official/" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-instagram" aria-hidden="true"></i> Instagram</a>
+      <a href="https://www.tiktok.com/@buildspot.store" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-tiktok" aria-hidden="true"></i> TikTok</a>
+      <a href="mailto:buildspot.officialmail@gmail.com"><i class="fa-solid fa-envelope" aria-hidden="true"></i> Email Us</a>
+    </div>
+    <p><strong>Email:</strong> buildspot.officialmail@gmail.com</p>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

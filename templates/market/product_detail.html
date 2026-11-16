@@ -15,8 +15,125 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="{{ product.name }} · BuildSpot">
 {% endif %}
+<style>
+.price-history-panel {
+    margin: 24px 0;
+    padding: 20px;
+    border: 1px solid #eadfce;
+    border-radius: 14px;
+    background: #fffaf2;
+}
+.price-history-panel h2 {
+    margin: 0 0 8px;
+    font-size: 1.2rem;
+}
+.price-history-note {
+    color: #71685d;
+    font-size: .9rem;
+    margin-bottom: 14px;
+}
+.price-history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.price-history-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee4d7;
+}
+.price-history-list li:last-child {
+    border-bottom: 0;
+}
+.price-history-date {
+    color: #71685d;
+    font-size: .88rem;
+}
+.price-drop-label {
+    display: inline-block;
+    margin: 8px 0;
+    padding: 6px 10px;
+    border-radius: 20px;
+    background: #e8f5e9;
+    color: #216b35;
+    font-size: .85rem;
+    font-weight: 700;
+}
+@media (max-width: 480px) {
+    .price-history-panel { padding: 15px; }
+    .price-history-list li { flex-direction: column; gap: 3px; }
+}
+.product-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
+    gap: 9px;
+    margin-top: 12px;
+}
+.product-gallery-grid a {
+    display: block;
+    overflow: hidden;
+    border-radius: 10px;
+    aspect-ratio: 1;
+}
+.product-gallery-grid img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+</style>
 {% endblock %}
-{% block content %}<section class="section product-detail"><div class="detail-image">{% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}<span><i class="fa-regular fa-image" aria-hidden="true"></i></span>{% endif %}</div><div class="detail-copy"><span class="eyebrow">{{ product.category|default:'BUILDING MATERIAL' }}</span><h1>{{ product.name }}</h1><div class="detail-price">{% if product.price %}₦{{ product.price|floatformat:2 }} / {{ product.price_unit }}{% else %}Contact seller for price{% endif %}</div><p>{{ product.description|default:'Contact the seller to confirm current price, stock and delivery options.' }}</p><div class="detail-seller"><b>{{ store.business_name }}</b><span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> {{ store.city }}, {{ store.state }}</span><a class="button button-outline" href="{{ store.get_absolute_url }}">Visit full showroom <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div><a class="button button-outline" href="{{ store.get_absolute_url }}">Back to showroom</a></div></section>
+{% block content %}<section class="section product-detail"><div class="detail-image">{% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}<span><i class="fa-regular fa-image" aria-hidden="true"></i></span>{% endif %}
+{% if product.gallery_images.all %}
+<div class="product-gallery-grid">
+  {% for gallery_image in product.gallery_images.all %}
+    <a href="{{ gallery_image.image.url }}" target="_blank" rel="noopener noreferrer">
+      <img src="{{ gallery_image.image.url }}" alt="Additional photo of {{ product.name }}" loading="lazy">
+    </a>
+  {% endfor %}
+</div>
+{% endif %}
+</div><div class="detail-copy"><span class="eyebrow">{{ product.category|default:'BUILDING MATERIAL' }}</span><h1>{{ product.name }}</h1>
+{% if user.is_authenticated %}
+<form method="post" action="{% url 'toggle_saved_product' product.id %}" class="favourite-action">
+  {% csrf_token %}
+  <button type="submit"><i class="fa-regular fa-heart" aria-hidden="true"></i> Save / remove product</button>
+</form>
+{% else %}
+<p><a href="{% url 'login' %}?next={{ request.path|urlencode }}">Log in to save this product</a></p>
+{% endif %}<div class="detail-price">{% if product.price %}₦{{ product.price|floatformat:2 }} / {{ product.price_unit }}{% else %}Contact seller for price{% endif %}</div><p>{{ product.description|default:'Contact the seller to confirm current price, stock and delivery options.' }}</p><div class="detail-seller"><b>{{ store.business_name }}</b><span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> {{ store.city }}, {{ store.state }}</span><a class="button button-outline" href="{{ store.get_absolute_url }}">Visit full showroom <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div><a class="button button-outline" href="{{ store.get_absolute_url }}">Back to showroom</a></div></section>
+{% if price_history %}
+<section class="section">
+  <div class="price-history-panel">
+    <h2>Price History</h2>
+    <p class="price-history-note">
+      These are prices recorded on BuildSpot since price tracking began.
+      Earlier prices may not be available.
+    </p>
+
+    {% if has_verified_price_drop %}
+      <span class="price-drop-label">Verified price drop</span>
+      <p class="price-history-note">
+        The latest recorded price is lower than the previous recorded price.
+      </p>
+    {% endif %}
+
+    <ul class="price-history-list">
+      {% for entry in price_history %}
+      <li>
+        <span class="price-history-date">
+          {{ entry.recorded_at|date:"M j, Y · g:i A" }}
+        </span>
+        <strong>₦{{ entry.price|floatformat:2 }}</strong>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endif %}
+
 {% if store.whatsapp_link_number %}
 <a class="buildspot-floating-whatsapp"
    href="https://wa.me/{{ store.whatsapp_link_number }}?text={{ whatsapp_message|urlencode }}"

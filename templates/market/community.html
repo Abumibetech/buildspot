@@ -14,9 +14,605 @@
 <meta name="twitter:title" content="{{ community_title|default:'BuildSpot Community' }} | BuildSpot">
 <meta name="twitter:description" content="Connect with building-material buyers and suppliers across Nigeria on BuildSpot Community.">
 <meta name="twitter:image" content="{{ community_image_absolute_url }}">
+
+<style>
+/* BUILDSPOT_COMMUNITY_PREMIUM_DESIGN_20261031 */
+
+.community-page-shell {
+    --community-orange: #ed741d;
+    --community-orange-dark: #c95b13;
+    --community-cream: #fff8ef;
+    --community-border: #f0e4d5;
+    --community-text: #29231e;
+    --community-muted: #776e65;
+    max-width: 1180px !important;
+    margin: 28px auto !important;
+    padding: 26px !important;
+    border: 1px solid var(--community-border);
+    border-radius: 24px;
+    background: var(--community-cream);
+    box-shadow: 0 12px 38px rgba(68, 43, 20, .07);
+    color: var(--community-text);
+}
+
+.community-page-shell > h1 {
+    margin: 0;
+    max-width: 850px;
+    font-size: clamp(2rem, 4.5vw, 3.35rem);
+    line-height: 1.08;
+    letter-spacing: -1.5px;
+    font-weight: 850;
+}
+
+.community-page-shell > h1 + p {
+    max-width: 720px;
+    margin: 13px 0 26px;
+    color: var(--community-muted);
+    font-size: 1.04rem;
+    line-height: 1.75;
+}
+
+.community-page-shell h2 {
+    color: var(--community-text);
+    font-size: clamp(1.35rem, 2.5vw, 1.85rem);
+    font-weight: 800;
+    letter-spacing: -.5px;
+}
+
+.community-page-shell h3 {
+    color: var(--community-text);
+    font-weight: 750;
+}
+
+.community-page-shell .community-request-hero,
+.community-page-shell .community-composer {
+    margin: 24px 0;
+    padding: clamp(20px, 3vw, 32px);
+    border: 1px solid var(--community-border);
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 8px 25px rgba(60, 40, 20, .045);
+}
+
+.community-page-shell .community-request-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 17px;
+    margin-bottom: 25px;
+}
+
+.community-page-shell .community-request-icon {
+    display: flex;
+    flex: 0 0 54px;
+    width: 54px;
+    height: 54px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 17px;
+    background: #fff0df;
+    color: var(--community-orange-dark);
+    font-size: 23px;
+}
+
+.community-page-shell .community-request-kicker,
+.community-page-shell .community-composer-kicker {
+    display: inline-block;
+    margin-bottom: 7px;
+    color: var(--community-orange-dark);
+    font-size: .75rem;
+    font-weight: 850;
+    letter-spacing: 1.5px;
+}
+
+.community-page-shell .community-request-heading h2,
+.community-page-shell .community-composer-heading h2 {
+    margin: 0 0 8px;
+}
+
+.community-page-shell .community-request-heading p,
+.community-page-shell .community-composer-heading p {
+    max-width: 700px;
+    margin: 0;
+    color: var(--community-muted);
+    line-height: 1.7;
+}
+
+.community-page-shell .community-request-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 19px;
+}
+
+.community-page-shell .community-request-field {
+    min-width: 0;
+    padding: 0;
+}
+
+.community-page-shell .community-request-field label,
+.community-page-shell .community-composer-field label {
+    display: block;
+    margin-bottom: 8px;
+    color: #39312a;
+    font-size: .9rem;
+    font-weight: 750;
+}
+
+.community-page-shell .community-request-field input,
+.community-page-shell .community-request-field select,
+.community-page-shell .community-request-field textarea,
+.community-page-shell .community-composer-field input,
+.community-page-shell .community-composer-field textarea {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 49px;
+    padding: 12px 14px;
+    border: 1px solid #e8ded2;
+    border-radius: 12px;
+    background: #fffdfa;
+    color: #29231e;
+    font: inherit;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.community-page-shell .community-request-field textarea,
+.community-page-shell .community-composer-field textarea {
+    min-height: 115px;
+    resize: vertical;
+}
+
+.community-page-shell .community-request-field input:focus,
+.community-page-shell .community-request-field select:focus,
+.community-page-shell .community-request-field textarea:focus,
+.community-page-shell .community-composer-field input:focus,
+.community-page-shell .community-composer-field textarea:focus {
+    border-color: var(--community-orange);
+    box-shadow: 0 0 0 3px rgba(237, 116, 29, .12);
+}
+
+.community-page-shell .community-request-field small {
+    display: block;
+    margin-top: 7px;
+    color: var(--community-muted);
+    line-height: 1.5;
+}
+
+.community-page-shell .community-request-field:has(textarea),
+.community-page-shell .community-request-field:has(input[type="file"]),
+.community-page-shell .community-request-field:has(select) {
+    grid-column: span 2;
+}
+
+.community-page-shell input[type="file"] {
+    min-height: auto;
+    padding: 13px;
+    border: 1px dashed #e5b98f;
+    background: #fff8ef;
+}
+
+.community-page-shell .community-request-publish,
+.community-page-shell .community-publish-button,
+.community-page-shell .community-open-store {
+    min-height: 47px;
+    padding: 12px 21px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--community-orange);
+    color: #fff;
+    font-weight: 800;
+    box-shadow: 0 5px 13px rgba(201, 91, 19, .15);
+    transition: transform .2s, background .2s, box-shadow .2s;
+}
+
+.community-page-shell .community-request-publish:hover,
+.community-page-shell .community-publish-button:hover,
+.community-page-shell .community-open-store:hover {
+    transform: translateY(-2px);
+    background: var(--community-orange-dark);
+    box-shadow: 0 8px 18px rgba(201, 91, 19, .2);
+}
+
+.community-page-shell .community-request-publish {
+    justify-self: start;
+}
+
+.community-page-shell .community-notifications-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 45px;
+    padding: 11px 17px;
+    border: 1px solid #f1d4b9;
+    border-radius: 12px;
+    background: #fff;
+    color: #a94e10;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.community-page-shell .community-composer {
+    background: #fff;
+}
+
+.community-page-shell .community-composer-prompt {
+    margin: 20px 0;
+    padding: 14px 16px;
+    border: 1px solid #f3dfca;
+    border-radius: 12px;
+    background: #fff8ef;
+    color: #74563d;
+    line-height: 1.6;
+}
+
+.community-page-shell .community-composer-form {
+    display: grid;
+    gap: 17px;
+}
+
+.community-page-shell .community-composer-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding-top: 8px;
+}
+
+.community-page-shell .community-composer-note,
+.community-page-shell .community-optional {
+    color: var(--community-muted);
+    font-size: .85rem;
+}
+
+.community-page-shell .community-publish-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.community-page-shell .community-post-card {
+    margin: 17px 0;
+    padding: clamp(17px, 3vw, 25px);
+    border: 1px solid var(--community-border);
+    border-radius: 19px;
+    background: #fff;
+    box-shadow: 0 6px 20px rgba(60, 40, 20, .045);
+}
+
+.community-page-shell .community-post-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 17px;
+}
+
+.community-page-shell .community-avatar {
+    display: flex;
+    flex: 0 0 43px;
+    width: 43px;
+    height: 43px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #fff0df;
+    color: var(--community-orange-dark);
+    font-size: 1.1rem;
+    font-weight: 850;
+}
+
+.community-page-shell .community-post-author strong a {
+    color: #30271f;
+    text-decoration: none;
+}
+
+.community-page-shell .community-post-date {
+    margin: 3px 0 0;
+    color: var(--community-muted);
+    font-size: .8rem;
+}
+
+.community-page-shell .community-post-body {
+    margin: 12px 0 17px;
+    color: #39332d;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.community-page-shell .community-post-photo {
+    display: block;
+    width: 100%;
+    max-height: 520px;
+    border-radius: 15px;
+    object-fit: cover;
+    background: #f7f1e9;
+}
+
+.community-page-shell .community-post-actions {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+    padding: 15px 0;
+    border-top: 1px solid #f0e9e1;
+    border-bottom: 1px solid #f0e9e1;
+}
+
+.community-page-shell .community-action-button {
+    min-height: 39px;
+    padding: 8px 13px;
+    border: 1px solid #eee3d8;
+    border-radius: 10px;
+    background: #fffaf4;
+    color: #665344;
+    font-size: .86rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.community-page-shell .community-owner-actions {
+    display: flex;
+    gap: 9px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+}
+
+.community-page-shell .community-comment-list {
+    margin-top: 20px;
+}
+
+.community-page-shell .community-comment-list h3 {
+    margin-bottom: 14px;
+    font-size: 1rem;
+}
+
+.community-page-shell .community-comment {
+    margin: 12px 0;
+    padding: 14px;
+    border: 1px solid #f0e8df;
+    border-radius: 13px;
+    background: #fffdfa;
+}
+
+.community-page-shell .community-comment-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.community-page-shell .community-comment-heading small {
+    color: var(--community-muted);
+}
+
+.community-page-shell .community-comment-body {
+    margin-top: 9px;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+}
+
+.community-page-shell .community-reply {
+    margin: 12px 0 0 18px;
+    padding: 12px;
+    border-left: 3px solid #f1b77f;
+    border-radius: 0 10px 10px 0;
+    background: #fff7ee;
+}
+
+.community-page-shell .community-comment-form,
+.community-page-shell .community-reply-form {
+    display: grid;
+    gap: 9px;
+    margin-top: 15px;
+}
+
+.community-page-shell .community-comment-form textarea,
+.community-page-shell .community-reply-form textarea {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 75px;
+    padding: 12px;
+    border: 1px solid #e8ded2;
+    border-radius: 11px;
+    background: #fffdfa;
+    font: inherit;
+}
+
+.community-page-shell .community-text-action {
+    border: 0;
+    background: transparent;
+    color: #b45a19;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.community-page-shell .community-request-card {
+    padding: 21px !important;
+    margin: 15px 0 !important;
+    border: 1px solid var(--community-border);
+    border-radius: 17px;
+    background: #fff;
+    box-shadow: 0 5px 18px rgba(60, 40, 20, .04);
+}
+
+.community-page-shell .community-request-card > p {
+    color: #5f564e;
+    line-height: 1.65;
+}
+
+.community-page-shell .community-store-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 17px;
+    margin-top: 20px;
+}
+
+.community-page-shell .community-store-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid var(--community-border);
+    border-radius: 17px;
+    background: #fff;
+    box-shadow: 0 5px 18px rgba(60, 40, 20, .04);
+    transition: transform .2s, box-shadow .2s;
+}
+
+.community-page-shell .community-store-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(60, 40, 20, .09);
+}
+
+.community-page-shell .community-store-logo {
+    display: flex;
+    width: 65px;
+    height: 65px;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid #f0e4d5;
+    border-radius: 15px;
+    background: #fff7ed;
+    color: var(--community-orange-dark);
+    font-size: 1.5rem;
+    font-weight: 850;
+    text-decoration: none;
+}
+
+.community-page-shell .community-store-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.community-page-shell .community-store-info {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.community-page-shell .community-store-info h3 {
+    margin: 14px 0 5px;
+    font-size: 1.05rem;
+}
+
+.community-page-shell .community-store-info h3 a {
+    color: #30271f;
+    text-decoration: none;
+}
+
+.community-page-shell .community-store-info p {
+    color: var(--community-muted);
+    font-size: .9rem;
+    line-height: 1.6;
+}
+
+.community-page-shell .community-open-store {
+    margin-top: auto;
+    text-decoration: none;
+}
+
+.community-page-shell .empty-inline {
+    padding: 17px;
+    border: 1px dashed #e8d5c2;
+    border-radius: 13px;
+    background: #fffaf4;
+    color: var(--community-muted);
+}
+
+.community-page-shell a {
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+    .community-page-shell {
+        margin: 12px auto !important;
+        padding: 15px !important;
+        border-radius: 17px;
+    }
+
+    .community-page-shell .community-request-form {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .community-page-shell .community-request-field:has(textarea),
+    .community-page-shell .community-request-field:has(input[type="file"]),
+    .community-page-shell .community-request-field:has(select) {
+        grid-column: auto;
+    }
+
+    .community-page-shell .community-store-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .community-page-shell .community-request-heading {
+        gap: 12px;
+    }
+
+    .community-page-shell .community-request-icon {
+        flex-basis: 45px;
+        width: 45px;
+        height: 45px;
+        border-radius: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .community-page-shell .community-store-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .community-page-shell .community-composer-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .community-page-shell .community-publish-button,
+    .community-page-shell .community-request-publish {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .community-page-shell .community-post-actions > * {
+        max-width: 100%;
+    }
+
+    .community-page-shell .community-post-card {
+        padding: 15px;
+    }
+}
+</style>
+
+
+<style>
+/* BUILDSPOT_NOTIFICATION_TARGET_HIGHLIGHT */
+.community-page-shell .community-comment:target,
+.community-page-shell .community-reply:target {
+    scroll-margin-top: 115px;
+    outline: 3px solid #f07821;
+    outline-offset: 5px;
+    border-radius: 12px;
+    background: rgba(240, 120, 33, .09);
+    animation: buildspot-notification-target 2.8s ease-out;
+}
+@keyframes buildspot-notification-target {
+    0%, 35% {
+        box-shadow: 0 0 0 7px rgba(240, 120, 33, .24);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(240, 120, 33, 0);
+    }
+}
+</style>
+
 {% endblock %}
 {% block content %}
-<div class="dashboard-panel" style="max-width:1100px;margin:24px auto;padding:24px;">
+<div class="dashboard-panel community-page-shell" style="max-width:1180px;margin:24px auto;padding:24px;">
   <h1>{{ community_title }}</h1>
   <p>Connect with buyers and suppliers. Share material needs, discover public stores, and explore building-material requests.</p>
 
@@ -127,6 +723,16 @@
           </a>
         {% endif %}
 
+        {% if post.gallery_images.all %}
+          <div class="community-post-gallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:9px;margin:12px 0;">
+            {% for gallery_image in post.gallery_images.all %}
+              <a href="{{ gallery_image.image.url }}" target="_blank" rel="noopener noreferrer" style="display:block;aspect-ratio:1;overflow:hidden;border-radius:10px;">
+                <img src="{{ gallery_image.image.url }}" alt="Additional photo shared by {{ post.author.username }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
+              </a>
+            {% endfor %}
+          </div>
+        {% endif %}
+
         <div class="community-post-actions">
           {% if user.is_authenticated %}
             <form method="post"
@@ -174,7 +780,7 @@
 
           {% for comment in post.comments.all %}
             {% if not comment.parent_id %}
-              <div class="community-comment">
+              <div class="community-comment" id="community-comment-{{ comment.id }}">
                 <div class="community-comment-heading">
                   <strong>{{ comment.author.username }}</strong>
                   <small>{{ comment.created_at|date:"M j, Y, g:i a" }}</small>
@@ -200,7 +806,7 @@
                 </div>
 
                 {% for reply in comment.replies.all %}
-                  <div class="community-reply">
+                  <div class="community-reply" id="community-reply-{{ reply.id }}">
                     <div class="community-comment-heading">
                       <strong>{{ reply.author.username }}</strong>
                       <small>{{ reply.created_at|date:"M j, Y, g:i a" }}</small>
@@ -298,7 +904,8 @@
             </p>
           </div>
           {% if item.buyer_whatsapp_link_number %}
-            <a href="https://wa.me/{{ item.buyer_whatsapp_link_number }}?text=Hello%2C%20I%20saw%20your%20BuildSpot%20request."
+            {% url 'community_request_detail' item.id as request_path %}
+            <a href="https://wa.me/{{ item.buyer_whatsapp_link_number }}?text=Hello%2C%20I%20saw%20your%20BuildSpot%20request%20for%20{{ item.material|urlencode }}.%20View%20the%20request%20and%20photo%3A%20https%3A%2F%2Fwww.buildspot.store{{ request_path|urlencode }}"
                target="_blank" rel="noopener noreferrer"
                aria-label="Contact buyer about {{ item.material }} on WhatsApp"
                title="Contact buyer on WhatsApp"

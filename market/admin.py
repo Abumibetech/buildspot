@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Store, Category, Product, Enquiry, Advertisement, CommunityPost, BuyerProfile
+from .models import Store, Category, Product, ProductPriceHistory, Enquiry, Advertisement, CommunityPost, BuyerProfile
 @admin.register(Store)
 class StoreAdmin(admin.ModelAdmin): list_display=("business_name","owner","city","state","verification_status","is_active"); list_filter=("verification_status","state","is_active"); search_fields=("business_name","owner__username","city","address"); prepopulated_fields={"slug":("business_name",)}
 @admin.register(Product)
@@ -27,3 +27,11 @@ class BuyerProfileAdmin(admin.ModelAdmin):
     list_display = ("user", "whatsapp", "created_at")
     search_fields = ("user__username", "user__email", "whatsapp")
     readonly_fields = ("created_at",)
+
+
+@admin.register(ProductPriceHistory)
+class ProductPriceHistoryAdmin(admin.ModelAdmin):
+    list_display = ("product", "price", "recorded_at")
+    list_filter = ("recorded_at",)
+    search_fields = ("product__name", "product__store__business_name")
+    readonly_fields = ("product", "price", "recorded_at")

@@ -16,9 +16,18 @@ from django.db.models import Q, Count, Max
 from django.utils.text import slugify
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
-from .models import Store, Product, Category, Advertisement, Enquiry, MaterialRequest, CommunityNotification, CommunityPost, CommunityComment, CommunityPostReaction, CommunityCommentReaction, PushSubscription, RecentlyViewed
-from .forms import BuyerSignupForm, SellerSignupForm, StoreForm, ProductForm, EnquiryForm, MaterialRequestForm, CommunityPostForm, STATE_CHOICES
+from .models import SavedProduct, SavedStore, Store, Product, ShowroomSection, Category, Advertisement, Enquiry, MaterialRequest, SellerQuotation, CommunityNotification, CommunityPost, CommunityComment, CommunityPostReaction, CommunityCommentReaction, PushSubscription, RecentlyViewed, ProductGalleryImage, MaterialRequestGalleryImage, CommunityPostGalleryImage, ShowroomSectionGalleryImage
+from .forms import BuyerSignupForm, SellerSignupForm, StoreForm, ProductForm, ShowroomSectionForm, EnquiryForm, MaterialRequestForm, SellerQuotationForm, CommunityPostForm, STATE_CHOICES
+from .daily_inspiration import get_daily_inspiration
 
+
+
+def _save_gallery_images(parent, uploaded_files, gallery_model, relation_name):
+    """Save validated gallery files using Django's configured storage backend."""
+    for uploaded_file in uploaded_files:
+        gallery_model.objects.create(
+            **{relation_name: parent, "image": uploaded_file}
+        )
 
 
 def _record_recently_viewed(request, *, product=None, store=None):
@@ -348,6 +357,15 @@ def home(request):
             if len(recommended_products) >= 8:
                 break
 
+    deal_products = Product.objects.filter(
+        available=True,
+        store__is_active=True,
+        price__isnull=False,
+        original_price__gt=__import__("django.db.models", fromlist=["F"]).F("price"),
+    ).filter(
+        Q(deal_expires_at__isnull=True) | Q(deal_expires_at__gt=timezone.now())
+    ).select_related("store", "category").order_by("-created_at")[:8]
+
     return render(request, "market/home.html", {
         "ads": ads,
         "stores": stores,
@@ -355,30 +373,156 @@ def home(request):
         "recent_products": recent_products,
         "recent_stores": recent_stores,
         "recommended_products": recommended_products,
+        "deal_products": deal_products,
+        "daily_inspiration": get_daily_inspiration(),
     })
 
+
+def todays_deals(request):
+    deal_products = Product.objects.filter(
+        available=True,
+        store__is_active=True,
+        price__isnull=False,
+        original_price__gt=__import__("django.db.models", fromlist=["F"]).F("price"),
+    ).filter(
+        Q(deal_expires_at__isnull=True) | Q(deal_expires_at__gt=timezone.now())
+    ).select_related("store", "category").order_by("-created_at")
+
+    return render(request, "market/todays_deals.html", {
+        "deal_products": deal_products,
+    })
+
+
 def market_list(request):
-    stores=Store.objects.filter(is_active=True).select_related("owner").annotate(product_count=Count("products", filter=Q(products__available=True))).distinct()
-    q=request.GET.get("q","").strip(); state=request.GET.get("state","").strip(); city=request.GET.get("city","").strip()
-    if q: stores=stores.filter(Q(business_name__icontains=q)|Q(description__icontains=q)|Q(products__name__icontains=q)|Q(products__category__name__icontains=q)).distinct()
-    if state: stores=stores.filter(state__icontains=state)
-    if city: stores=stores.filter(city__icontains=city)
-    return render(request,"market/market.html",{"stores":stores,"q":q,"state":state,"city":city,"ads":Advertisement.objects.filter(active=True,placement="market")})
+    q = request.GET.get("q", "").strip()
+    state = request.GET.get("state", "").strip()
+    city = request.GET.get("city", "").strip()
+
+    stores = Store.objects.filter(
+        is_active=True
+    ).select_related("owner").annotate(
+        product_count=Count(
+            "products",
+            filter=Q(products__available=True),
+            distinct=True,
+        )
+    )
+
+    matching_sections = ShowroomSection.objects.filter(
+        store__is_active=True
+    ).select_related("store").annotate(
+        product_count=Count(
+            "products",
+            filter=Q(products__available=True),
+            distinct=True,
+        )
+    )
+
+    if q:
+        stores = stores.filter(
+            Q(business_name__icontains=q)
+            | Q(description__icontains=q)
+            | Q(products__name__icontains=q)
+            | Q(products__category__name__icontains=q)
+            | Q(showroom_sections__name__icontains=q)
+            | Q(showroom_sections__description__icontains=q)
+        ).distinct()
+
+        matching_sections = matching_sections.filter(
+            Q(name__icontains=q)
+            | Q(description__icontains=q)
+        )
+
+    if state:
+        stores = stores.filter(state__icontains=state)
+        matching_sections = matching_sections.filter(
+            store__state__icontains=state
+        )
+
+    if city:
+        stores = stores.filter(city__icontains=city)
+        matching_sections = matching_sections.filter(
+            store__city__icontains=city
+        )
+
+    return render(request, "market/market.html", {
+        "stores": stores.distinct(),
+        "matching_sections": matching_sections,
+        "q": q,
+        "state": state,
+        "city": city,
+        "ads": Advertisement.objects.filter(
+            active=True,
+            placement="market",
+        ),
+    })
 
 def store_detail(request, slug):
-    store=get_object_or_404(Store,slug=slug,is_active=True)
-    products=store.products.filter(available=True).select_related("category")
-    form=EnquiryForm(request.POST or None)
-    if request.method=="POST" and form.is_valid():
-        enquiry=form.save(commit=False); enquiry.store=store
-        pid=request.POST.get("product_id")
-        if pid: enquiry.product=Product.objects.filter(pk=pid,store=store).first()
-        enquiry.save();
+    store = get_object_or_404(Store, slug=slug, is_active=True)
+
+    sections = store.showroom_sections.annotate(
+        product_count=Count("products")
+    ).prefetch_related("gallery_images")
+
+    products = store.products.filter(
+        available=True
+    ).select_related("category", "showroom_section")
+
+    selected_section_slug = request.GET.get("section", "").strip()
+    selected_section = sections.filter(
+        slug=selected_section_slug
+    ).first() if selected_section_slug else None
+
+    if selected_section:
+        products = products.filter(showroom_section=selected_section)
+
+    search_query = request.GET.get("q", "").strip()
+    if search_query:
+        products = products.filter(
+            Q(name__icontains=search_query)
+            | Q(description__icontains=search_query)
+            | Q(category__name__icontains=search_query)
+        )
+
+    form = EnquiryForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        enquiry = form.save(commit=False)
+        enquiry.store = store
+        pid = request.POST.get("product_id")
+        if pid:
+            enquiry.product = Product.objects.filter(
+                pk=pid, store=store
+            ).first()
+        enquiry.save()
+
         if store.owner.email:
-            send_mail(f"New BuildSpot enquiry for {store.business_name}", f"Buyer: {enquiry.buyer_name}\nEmail: {enquiry.buyer_email}\nPhone: {enquiry.buyer_phone}\nProduct: {enquiry.product or 'General enquiry'}\nQuantity: {enquiry.quantity}\nDelivery location: {enquiry.delivery_location}\n\n{enquiry.message}", None, [store.owner.email], fail_silently=True)
-        messages.success(request,"Your request has been sent to the seller. They can contact you using the details you provided."); return redirect(store.get_absolute_url())
+            send_mail(
+                f"New BuildSpot enquiry for {store.business_name}",
+                f"Buyer: {enquiry.buyer_name}\nEmail: {enquiry.buyer_email}\nPhone: {enquiry.buyer_phone}\nProduct: {enquiry.product or 'General enquiry'}\nQuantity: {enquiry.quantity}\nDelivery location: {enquiry.delivery_location}\n\n{enquiry.message}",
+                None,
+                [store.owner.email],
+                fail_silently=True,
+            )
+
+        messages.success(
+            request,
+            "Your request has been sent to the seller. They can contact you using the details you provided.",
+        )
+        return redirect(store.get_absolute_url())
+
     _record_recently_viewed(request, store=store)
-    return render(request,"market/store_detail.html",{"store":store,"products":products,"form":form,"ads":Advertisement.objects.filter(active=True,placement="store")})
+
+    return render(request, "market/store_detail.html", {
+        "store": store,
+        "products": products,
+        "sections": sections,
+        "selected_section": selected_section,
+        "search_query": search_query,
+        "form": form,
+        "ads": Advertisement.objects.filter(
+            active=True, placement="store"
+        ),
+    })
 
 def signup(request):
     form = SellerSignupForm(request.POST or None)
@@ -470,7 +614,93 @@ def seller_dashboard(request):
         form=StoreForm(request.POST,request.FILES,instance=store)
         if form.is_valid(): form.save(); messages.success(request,"Store profile updated."); return redirect("seller_dashboard")
     else: form=StoreForm(instance=store)
-    return render(request,"market/dashboard.html",{"store":store,"form":form,"products":store.products.all(),"enquiries":store.enquiries.select_related("product")[:20]})
+    return render(request,"market/dashboard.html",{"store":store,"form":form,"products":store.products.select_related("showroom_section").all(),"sections":store.showroom_sections.annotate(product_count=Count("products")).prefetch_related("gallery_images"),"enquiries":store.enquiries.select_related("product")[:20]})
+
+@login_required
+def showroom_section_add(request):
+    store = get_object_or_404(Store, owner=request.user)
+    form = ShowroomSectionForm(request.POST or None, request.FILES or None)
+
+    if request.method == "POST" and form.is_valid():
+        section = form.save(commit=False)
+        section.store = store
+        base = slugify(section.name) or "section"
+        slug = base
+        number = 2
+
+        while ShowroomSection.objects.filter(store=store, slug=slug).exists():
+            slug = f"{base}-{number}"
+            number += 1
+
+        section.slug = slug
+        section.save()
+        _save_gallery_images(
+            section,
+            form.cleaned_data.get("gallery_images", []),
+            ShowroomSectionGalleryImage,
+            "section",
+        )
+        messages.success(request, "Showroom section created.")
+        return redirect("seller_dashboard")
+
+    return render(request, "market/showroom_section_form.html", {
+        "form": form,
+        "heading": "Create showroom section",
+    })
+
+
+@login_required
+def showroom_section_edit(request, pk):
+    store = get_object_or_404(Store, owner=request.user)
+    section = get_object_or_404(ShowroomSection, pk=pk, store=store)
+    form = ShowroomSectionForm(
+        request.POST or None,
+        request.FILES or None,
+        instance=section,
+    )
+
+    if request.method == "POST" and form.is_valid():
+        section = form.save(commit=False)
+        base = slugify(section.name) or "section"
+        slug = base
+        number = 2
+
+        while ShowroomSection.objects.filter(
+            store=store, slug=slug
+        ).exclude(pk=section.pk).exists():
+            slug = f"{base}-{number}"
+            number += 1
+
+        section.slug = slug
+        section.save()
+        _save_gallery_images(
+            section,
+            form.cleaned_data.get("gallery_images", []),
+            ShowroomSectionGalleryImage,
+            "section",
+        )
+        messages.success(request, "Showroom section updated.")
+        return redirect("seller_dashboard")
+
+    return render(request, "market/showroom_section_form.html", {
+        "form": form,
+        "heading": "Edit showroom section",
+        "section": section,
+    })
+
+
+@login_required
+@require_POST
+def showroom_section_delete(request, pk):
+    store = get_object_or_404(Store, owner=request.user)
+    section = get_object_or_404(ShowroomSection, pk=pk, store=store)
+    section.delete()
+    messages.success(
+        request,
+        "Showroom section deleted. Its products have been kept in your catalogue.",
+    )
+    return redirect("seller_dashboard")
+
 
 @login_required
 def store_profile(request):
@@ -498,11 +728,17 @@ def store_profile(request):
 @login_required
 def product_add(request):
     store=get_object_or_404(Store,owner=request.user)
-    form=ProductForm(request.POST or None,request.FILES or None)
+    form=ProductForm(request.POST or None,request.FILES or None,store=store)
     if request.method=="POST" and form.is_valid():
         product=form.save(commit=False); product.store=store; product.slug=slugify(product.name); base=product.slug or "product"; slug=base; i=2
         while Product.objects.filter(store=store,slug=slug).exists(): slug=f"{base}-{i}"; i+=1
         product.slug=slug; product.save()
+        _save_gallery_images(
+            product,
+            form.cleaned_data.get("gallery_images", []),
+            ProductGalleryImage,
+            "product",
+        )
 
         # Notify only buyers with an open request matching this available product.
         buyer_ids = []
@@ -554,8 +790,17 @@ def product_add(request):
 @login_required
 def product_edit(request, pk):
     store=get_object_or_404(Store,owner=request.user); product=get_object_or_404(Product,pk=pk,store=store)
-    form=ProductForm(request.POST or None,request.FILES or None,instance=product)
-    if request.method=="POST" and form.is_valid(): form.save(); messages.success(request,"Product updated."); return redirect("seller_dashboard")
+    form=ProductForm(request.POST or None,request.FILES or None,instance=product,store=store)
+    if request.method == "POST" and form.is_valid():
+        product = form.save()
+        _save_gallery_images(
+            product,
+            form.cleaned_data.get("gallery_images", []),
+            ProductGalleryImage,
+            "product",
+        )
+        messages.success(request, "Product updated.")
+        return redirect("seller_dashboard")
     return render(request,"market/product_form.html",{"form":form,"heading":"Edit product"})
 
 @login_required
@@ -585,6 +830,15 @@ def product_detail(request, store_slug, product_slug):
         f"Please share price and availability. Product details and picture: "
         f"{product_absolute_url}"
     )
+
+    price_history = list(
+        product.price_history.order_by("-recorded_at", "-pk")[:6]
+    )
+    has_verified_price_drop = (
+        len(price_history) >= 2
+        and price_history[0].price < price_history[1].price
+    )
+
     return render(request, "market/product_detail.html", {
         "store": store,
         "product": product,
@@ -592,6 +846,8 @@ def product_detail(request, store_slug, product_slug):
         "product_absolute_url": product_absolute_url,
         "product_image_absolute_url": product_image_absolute_url,
         "whatsapp_message": whatsapp_message,
+        "price_history": price_history,
+        "has_verified_price_drop": has_verified_price_drop,
     })
 
 def product_detail_url(store, product):
@@ -730,6 +986,12 @@ def material_request_create(request):
     material_request = form.save(commit=False)
     material_request.buyer = request.user
     material_request.save()
+    _save_gallery_images(
+        material_request,
+        form.cleaned_data.get("gallery_images", []),
+        MaterialRequestGalleryImage,
+        "material_request",
+    )
 
     # Notify active sellers in the selected state only if they stock
     # an available product matching the request. Never expose the exact
@@ -800,16 +1062,307 @@ def material_request_create(request):
     return redirect(f"/community/?state={material_request.state}")
 
 
+@login_required
+def quotation_create(request, request_id):
+    material_request = get_object_or_404(
+        MaterialRequest, pk=request_id, status="open"
+    )
+    # The buyer must never submit a quotation to their own request.
+    if material_request.buyer_id == request.user.pk:
+        messages.error(request, "You cannot submit a quotation to your own request.")
+        return redirect("community_request_detail", request_id=material_request.pk)
+
+    # Recheck that the request is still open before accepting a quotation.
+    if material_request.status != "open":
+        messages.error(request, "This material request is no longer accepting quotations.")
+        return redirect("community_request_detail", request_id=material_request.pk)
+
+    if material_request.quotations.filter(status="accepted").exists():
+        messages.info(request, "A quotation has already been accepted for this request.")
+        return redirect("community_request_detail", request_id=material_request.pk)
+
+    store = get_object_or_404(Store, owner=request.user, is_active=True)
+
+    # Sellers anywhere within the requested state may submit quotations.
+    # The buyer's city remains the preferred delivery destination.
+    if store.state.strip().casefold() != material_request.state.strip().casefold():
+        messages.error(
+            request,
+            "Your store must be in the same state as this request to submit a quotation."
+        )
+        return redirect("community_request_detail", request_id=material_request.pk)
+
+    if request.method != "POST":
+        return redirect("community_request_detail", request_id=material_request.pk)
+
+    if SellerQuotation.objects.filter(
+        material_request=material_request, store=store
+    ).exists():
+        messages.info(
+            request,
+            "Your store has already submitted a quotation for this request."
+        )
+        return redirect("community_request_detail", request_id=material_request.pk)
+
+    form = SellerQuotationForm(request.POST)
+    if form.is_valid():
+        quotation = form.save(commit=False)
+        quotation.material_request = material_request
+        quotation.store = store
+        quotation.save()
+
+        CommunityNotification.objects.create(
+            recipient=material_request.buyer,
+            title="A seller sent you a quotation",
+            message=(
+                f"{store.business_name} quoted ₦{quotation.price} "
+                f"for {material_request.material}."
+            ),
+            url=f"/community/requests/{material_request.pk}/",
+        )
+        messages.success(request, "Your quotation has been sent to the buyer.")
+    else:
+        messages.error(
+            request,
+            "The quotation could not be submitted. Check the price and required fields."
+        )
+
+    return redirect("community_request_detail", request_id=material_request.pk)
+
+
+
 def material_request_detail(request, request_id):
     material_request = get_object_or_404(
         MaterialRequest.objects.select_related("buyer"),
         pk=request_id,
     )
+
+    context = {"item": material_request}
+
+    # Only the buyer who created the request can see all quotations.
+    if request.user.is_authenticated and request.user.pk == material_request.buyer_id:
+        context["quotations"] = (
+            material_request.quotations.select_related("store").all()
+        )
+
+    # Sellers can see only their own quotation and may quote only once.
+    if (
+        request.user.is_authenticated
+        and request.user.pk != material_request.buyer_id
+    ):
+        try:
+            store = Store.objects.get(owner=request.user, is_active=True)
+        except Store.DoesNotExist:
+            store = None
+
+        if store:
+            same_state = (
+                store.state.strip().casefold()
+                == material_request.state.strip().casefold()
+            )
+            # City is a preferred delivery destination, not a seller eligibility restriction.
+            if same_state:
+                context["seller_store"] = store
+                context["seller_quotation"] = (
+                    material_request.quotations.filter(store=store).first()
+                )
+
+                has_accepted_quotation = material_request.quotations.filter(
+                    status="accepted"
+                ).exists()
+
+                if (
+                    material_request.status == "open"
+                    and not has_accepted_quotation
+                    and context["seller_quotation"] is None
+                ):
+                    context["quotation_form"] = SellerQuotationForm()
+
     return render(
         request,
         "market/material_request_detail.html",
-        {"item": material_request},
+        context,
     )
+
+@login_required
+@require_POST
+def quotation_accept(request, quotation_id):
+    quotation = get_object_or_404(
+        SellerQuotation.objects.select_related(
+            "material_request", "store", "store__owner"
+        ),
+        pk=quotation_id,
+        material_request__buyer=request.user,
+    )
+    material_request = quotation.material_request
+
+    accepted_seller_ids = []
+    declined_seller_ids = []
+
+    with transaction.atomic():
+        material_request = MaterialRequest.objects.get(pk=material_request.pk)
+        quotation = SellerQuotation.objects.select_related(
+            "store", "store__owner"
+        ).get(pk=quotation.pk)
+
+        if material_request.status != "open":
+            messages.error(request, "This material request is no longer open.")
+            return redirect(
+                "community_request_detail", request_id=material_request.pk
+            )
+
+        if quotation.status != "submitted":
+            messages.info(request, "This quotation has already been processed.")
+            return redirect(
+                "community_request_detail", request_id=material_request.pk
+            )
+
+        if material_request.quotations.filter(status="accepted").exists():
+            messages.info(request, "A quotation has already been accepted.")
+            return redirect(
+                "community_request_detail", request_id=material_request.pk
+            )
+
+        quotation.status = "accepted"
+        quotation.save(update_fields=["status", "updated_at"])
+
+        accepted_seller = quotation.store.owner
+        accepted_seller_ids.append(accepted_seller.pk)
+
+        CommunityNotification.objects.create(
+            recipient=accepted_seller,
+            title="Your quotation was accepted!",
+            message=(
+                f"The buyer accepted your quotation for "
+                f"{material_request.material}."
+            ),
+            url=(
+                f"/community/requests/{material_request.pk}/"
+                f"#community-quotation-{quotation.pk}"
+            ),
+        )
+
+        other_quotes = list(
+            SellerQuotation.objects.select_related(
+                "store", "store__owner"
+            ).filter(
+                material_request=material_request,
+                status="submitted",
+            ).exclude(pk=quotation.pk)
+        )
+
+        for other in other_quotes:
+            other.status = "declined"
+            other.save(update_fields=["status", "updated_at"])
+
+            seller = other.store.owner
+            declined_seller_ids.append(seller.pk)
+
+            CommunityNotification.objects.create(
+                recipient=seller,
+                title="Quotation not selected",
+                message=(
+                    f"The buyer accepted another seller's quotation for "
+                    f"{material_request.material}. Thank you for responding."
+                ),
+                url=(
+                    f"/community/requests/{material_request.pk}/"
+                    f"#community-quotation-{other.pk}"
+                ),
+            )
+
+    # Send browser push after the database transaction succeeds.
+    from .push_notifications import send_web_push
+
+    send_web_push(
+        list(set(accepted_seller_ids)),
+        title="Quotation accepted!",
+        body=f"Your quotation for {material_request.material} was accepted.",
+        url=(
+            f"/community/requests/{material_request.pk}/"
+            f"#community-quotation-{quotation.pk}"
+        ),
+    )
+
+    if declined_seller_ids:
+        send_web_push(
+            list(set(declined_seller_ids)),
+            title="Quotation update",
+            body=(
+                f"The buyer selected another quotation for "
+                f"{material_request.material}."
+            ),
+            url=f"/community/requests/{material_request.pk}/",
+        )
+
+    messages.success(
+        request,
+        "Quotation accepted. All other submitted quotations have been declined.",
+    )
+    return redirect("community_request_detail", request_id=material_request.pk)
+
+
+@login_required
+@require_POST
+def quotation_decline(request, quotation_id):
+    quotation = get_object_or_404(
+        SellerQuotation.objects.select_related(
+            "material_request", "store", "store__owner"
+        ),
+        pk=quotation_id,
+        material_request__buyer=request.user,
+    )
+    material_request = quotation.material_request
+    seller = quotation.store.owner
+
+    with transaction.atomic():
+        material_request = MaterialRequest.objects.get(pk=material_request.pk)
+        quotation = SellerQuotation.objects.get(pk=quotation.pk)
+
+        if quotation.status != "submitted":
+            messages.info(request, "This quotation has already been processed.")
+            return redirect(
+                "community_request_detail", request_id=material_request.pk
+            )
+
+        if material_request.status != "open":
+            messages.error(request, "This material request is no longer open.")
+            return redirect(
+                "community_request_detail", request_id=material_request.pk
+            )
+
+        quotation.status = "declined"
+        quotation.save(update_fields=["status", "updated_at"])
+
+        CommunityNotification.objects.create(
+            recipient=seller,
+            title="Your quotation was declined",
+            message=(
+                f"The buyer declined your quotation for "
+                f"{material_request.material}."
+            ),
+            url=(
+                f"/community/requests/{material_request.pk}/"
+                f"#community-quotation-{quotation.pk}"
+            ),
+        )
+
+    from .push_notifications import send_web_push
+
+    send_web_push(
+        [seller.pk],
+        title="Quotation declined",
+        body=f"Your quotation for {material_request.material} was declined.",
+        url=(
+            f"/community/requests/{material_request.pk}/"
+            f"#community-quotation-{quotation.pk}"
+        ),
+    )
+
+    messages.success(request, "The quotation has been declined.")
+    return redirect("community_request_detail", request_id=material_request.pk)
+
+
 
 
 @login_required
@@ -868,11 +1421,30 @@ def community_notification_updates(request):
 
 @login_required
 def community_notifications(request):
+    status = request.GET.get("status", "all")
+    if status not in {"all", "unread", "read"}:
+        status = "all"
+
     notifications = CommunityNotification.objects.filter(
         recipient=request.user
-    )[:100]
+    )
+
+    if status == "unread":
+        notifications = notifications.filter(is_read=False)
+    elif status == "read":
+        notifications = notifications.filter(is_read=True)
+
+    notifications = notifications[:100]
+
+    unread_count = CommunityNotification.objects.filter(
+        recipient=request.user,
+        is_read=False,
+    ).count()
+
     return render(request, "market/community_notifications.html", {
         "notifications": notifications,
+        "notification_status": status,
+        "notification_unread_count": unread_count,
     })
 
 
@@ -888,7 +1460,7 @@ def community_notification_read(request, notification_id):
     )
     notification.is_read = True
     notification.save(update_fields=["is_read"])
-    return redirect(notification.url or "community_notifications")
+    return redirect("community_notifications")
 
 
 @login_required
@@ -901,6 +1473,12 @@ def community_post_create(request):
         post = form.save(commit=False)
         post.author = request.user
         post.save()
+        _save_gallery_images(
+            post,
+            form.cleaned_data.get("gallery_images", []),
+            CommunityPostGalleryImage,
+            "post",
+        )
         messages.success(request, "Your community post has been published.")
     else:
         for errors in form.errors.values():
@@ -918,6 +1496,12 @@ def community_post_edit(request, post_id):
         form = CommunityPostForm(request.POST, request.FILES, instance=post)
         if form.is_valid():
             form.save()
+            _save_gallery_images(
+                post,
+                form.cleaned_data.get("gallery_images", []),
+                CommunityPostGalleryImage,
+                "post",
+            )
             messages.success(request, "Your community post has been updated.")
             return redirect("community")
     else:
@@ -956,7 +1540,7 @@ def community_comment_create(request, post_id):
     elif len(body) > 2000:
         messages.error(request, "Comments must be 2,000 characters or fewer.")
     else:
-        CommunityComment.objects.create(
+        comment = CommunityComment.objects.create(
             post=post, author=request.user, body=body
         )
         if post.author_id != request.user.id:
@@ -964,7 +1548,7 @@ def community_comment_create(request, post_id):
                 recipient=post.author,
                 title="New comment on your community post",
                 message=f"{request.user.username} commented on your post.",
-                url=f"/community/#community-post-{post.pk}",
+                url=f"/community/#community-comment-{comment.pk}",
             )
         messages.success(request, "Your comment has been added.")
 
@@ -988,7 +1572,7 @@ def community_comment_reply(request, comment_id):
     elif len(body) > 2000:
         messages.error(request, "Replies must be 2,000 characters or fewer.")
     else:
-        CommunityComment.objects.create(
+        reply = CommunityComment.objects.create(
             post=post,
             author=request.user,
             parent=parent,
@@ -1008,7 +1592,7 @@ def community_comment_reply(request, comment_id):
                 recipient=recipient,
                 title="New reply in the community",
                 message=f"{request.user.username} replied to a comment.",
-                url=f"/community/#community-post-{post.pk}",
+                url=f"/community/#community-reply-{reply.pk}",
             )
         messages.success(request, "Your reply has been added.")
 
@@ -1063,7 +1647,11 @@ def community_comment_react(request, comment_id):
                 recipient=comment.author,
                 title="Someone liked your comment",
                 message=f"{request.user.username} liked your comment.",
-                url=f"/community/#community-post-{comment.post_id}",
+                url=(
+                    f"/community/#community-reply-{comment.pk}"
+                    if comment.parent_id
+                    else f"/community/#community-comment-{comment.pk}"
+                ),
             )
         messages.success(request, "You liked this comment.")
 
@@ -1124,3 +1712,64 @@ def push_unsubscribe(request):
         user=request.user, endpoint=endpoint
     ).delete()
     return JsonResponse({"ok": True, "deleted": bool(deleted)})
+
+
+@login_required
+def my_favourites(request):
+    saved_products = SavedProduct.objects.filter(
+        user=request.user,
+        product__available=True,
+        product__store__is_active=True,
+    ).select_related("product", "product__store", "product__category")
+
+    saved_stores = SavedStore.objects.filter(
+        user=request.user,
+        store__is_active=True,
+    ).select_related("store")
+
+    return render(
+        request,
+        "market/my_favourites.html",
+        {
+            "saved_products": saved_products,
+            "saved_stores": saved_stores,
+        },
+    )
+
+
+@login_required
+@require_POST
+def toggle_saved_product(request, product_id):
+    product = get_object_or_404(
+        Product, pk=product_id, available=True, store__is_active=True
+    )
+    saved, created = SavedProduct.objects.get_or_create(
+        user=request.user, product=product
+    )
+    if not created:
+        saved.delete()
+        messages.success(request, "Product removed from your favourites.")
+    else:
+        messages.success(request, "Product saved to your favourites.")
+    return redirect("my_favourites")
+
+
+@login_required
+@require_POST
+def toggle_saved_store(request, store_id):
+    store = get_object_or_404(Store, pk=store_id, is_active=True)
+    saved, created = SavedStore.objects.get_or_create(
+        user=request.user, store=store
+    )
+    if not created:
+        saved.delete()
+        messages.success(request, "Store removed from your favourites.")
+    else:
+        messages.success(request, "Store saved to your favourites.")
+    return redirect("my_favourites")
+
+
+def buildspot_custom_404(request, exception=None):
+    """Render BuildSpot's branded page for unavailable pages and requests."""
+    from django.shortcuts import render
+    return render(request, "404.html", status=404)

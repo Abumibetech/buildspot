@@ -1,11 +1,20 @@
 import os
 from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-change-this-buildspot-secret-key")
-DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
-ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "127.0.0.1,localhost,buildspot.pythonanywhere.com").split(",") if h.strip()]
+# Private production environment configuration.
+_PRIVATE_ENV_FILE = Path.home() / ".buildspot_env"
+if _PRIVATE_ENV_FILE.is_file():
+    for _private_line in _PRIVATE_ENV_FILE.read_text().splitlines():
+        _private_line = _private_line.strip()
+        if _private_line and not _private_line.startswith("#") and "=" in _private_line:
+            _private_key, _private_value = _private_line.split("=", 1)
+            os.environ.setdefault(_private_key.strip(), _private_value.strip())
+SECRET_KEY = os.environ["SECRET_KEY"]
+DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "127.0.0.1,localhost,buildspot.pythonanywhere.com,buildspot.store,www.buildspot.store").split(",") if h.strip()]
+CSRF_TRUSTED_ORIGINS = ["https://buildspot.store", "https://www.buildspot.store"]
 INSTALLED_APPS = ["django.contrib.admin", "django.contrib.auth", "django.contrib.contenttypes", "django.contrib.sessions", "django.contrib.messages", "django.contrib.staticfiles", "django.contrib.sitemaps", "market.apps.MarketConfig"]
-MIDDLEWARE = ["django.middleware.security.SecurityMiddleware", "whitenoise.middleware.WhiteNoiseMiddleware", "django.contrib.sessions.middleware.SessionMiddleware", "django.middleware.common.CommonMiddleware", "django.middleware.csrf.CsrfViewMiddleware", "django.contrib.auth.middleware.AuthenticationMiddleware", "django.contrib.messages.middleware.MessageMiddleware", "django.middleware.clickjacking.XFrameOptionsMiddleware"]
+MIDDLEWARE = ["django.middleware.security.SecurityMiddleware", "whitenoise.middleware.WhiteNoiseMiddleware", "django.contrib.sessions.middleware.SessionMiddleware", "django.middleware.common.CommonMiddleware", "django.middleware.csrf.CsrfViewMiddleware", "django.contrib.auth.middleware.AuthenticationMiddleware", "market.middleware.UserActivityMiddleware", "django.contrib.messages.middleware.MessageMiddleware", "django.middleware.clickjacking.XFrameOptionsMiddleware"]
 ROOT_URLCONF = "buildspot.urls"
 TEMPLATES = [{"BACKEND":"django.template.backends.django.DjangoTemplates", "DIRS":[BASE_DIR/"templates"], "APP_DIRS":True, "OPTIONS":{"context_processors":["django.template.context_processors.request", "django.contrib.auth.context_processors.auth", "django.contrib.messages.context_processors.messages"]}}]
 WSGI_APPLICATION = "buildspot.wsgi.application"
@@ -70,3 +79,19 @@ if _CLOUDINARY_CLOUD_NAME and _CLOUDINARY_API_KEY and _CLOUDINARY_API_SECRET:
             "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
         },
     }
+
+
+# Production cookie security.
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# PythonAnywhere HTTPS proxy configuration.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# Keep redirect and HSTS disabled until HTTPS proxy behavior is verified.
+SECURE_SSL_REDIRECT = False
+SECURE_HSTS_SECONDS = 0
+
+
+# Allow Google consent messages to receive the origin on cross-origin requests.
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"

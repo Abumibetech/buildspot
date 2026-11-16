@@ -9,7 +9,13 @@
 </script>
 
 {% block extra_head %}{% endblock %}
-</head><body><header class="nav"><a class="brand" href="{% url 'home' %}" aria-label="BuildSpot home"><img src="{% static 'img/logo.jpeg' %}" alt="BuildSpot — Your One-Stop Building Materials Market"></a><button class="menu-toggle" aria-label="Open menu" aria-expanded="false">☰</button><nav class="navlinks"><a href="{% url 'home' %}"><i class="fa-solid fa-house buildspot-fa-icon" aria-hidden="true"></i> Home</a><a href="{% url 'market' %}"><i class="fa-solid fa-store buildspot-fa-icon" aria-hidden="true"></i> Find a Store</a><a href="{% url 'community' %}"><i class="fa-solid fa-users buildspot-fa-icon" aria-hidden="true"></i> Materials Community</a>{% if user.is_authenticated %}<a class="buildspot-notification-link" href="{% url 'community_notifications' %}" aria-label="Notifications"><i class="fa-solid fa-bell buildspot-fa-icon" aria-hidden="true"></i><span>Notifications</span><span id="buildspot-unread-count" class="buildspot-unread-count" hidden>0</span></a>{% if user.store %}<a href="{% url 'seller_dashboard' %}">Seller dashboard</a>{% endif %}<form method="post" action="{% url 'logout' %}" class="inline-form">{% csrf_token %}<button class="nav-login" type="submit">Log out</button></form>{% else %}<a href="{% url 'login' %}">Log in</a><a class="nav-cta" href="{% url 'signup' %}">Open a store</a>{% endif %}<button class="theme-toggle" aria-label="Toggle dark mode">◐</button></nav></header>
+
+    <!-- Google AdSense verification code -->
+    <script async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4901860117581932"
+        crossorigin="anonymous"></script>
+
+</head><body><header class="nav"><a class="brand" href="{% url 'home' %}" aria-label="BuildSpot home"><img src="{% static 'img/logo.jpeg' %}" alt="BuildSpot — Your One-Stop Building Materials Market"></a><button class="menu-toggle" aria-label="Open menu" aria-expanded="false">☰</button><nav class="navlinks"><a href="{% url 'home' %}"><i class="fa-solid fa-house buildspot-fa-icon" aria-hidden="true"></i> Home</a><a href="{% url 'market' %}"><i class="fa-solid fa-store buildspot-fa-icon" aria-hidden="true"></i> Find a Store</a><a href="{% url 'todays_deals' %}"><i class="fa-solid fa-tags buildspot-fa-icon" aria-hidden="true"></i> Today's Deals</a><a href="{% url 'community' %}"><i class="fa-solid fa-users buildspot-fa-icon" aria-hidden="true"></i> Materials Community</a>{% if user.is_authenticated %}<a href="{% url 'my_favourites' %}"><i class="fa-regular fa-heart buildspot-fa-icon" aria-hidden="true"></i> My Favourites</a><a class="buildspot-notification-link" href="{% url 'community_notifications' %}" aria-label="Notifications"><i class="fa-solid fa-bell buildspot-fa-icon" aria-hidden="true"></i><span>Notifications</span><span id="buildspot-unread-count" class="buildspot-unread-count" hidden>0</span></a>{% if user.store %}<a href="{% url 'seller_dashboard' %}">Seller dashboard</a>{% endif %}<form method="post" action="{% url 'logout' %}" class="inline-form">{% csrf_token %}<button class="nav-login" type="submit">Log out</button></form>{% else %}<a href="{% url 'login' %}">Log in</a><a class="nav-cta" href="{% url 'signup' %}">Open a store</a>{% endif %}<button class="theme-toggle" aria-label="Toggle dark mode">◐</button></nav></header>
 <style>
 .buildspot-notification-link {
   display:inline-flex!important;align-items:center;justify-content:center;
@@ -28,7 +34,103 @@
 }
 </style>
 
-<button class="install-btn" id="install-app-button">Install BuildSpot App</button>{% if messages %}<div class="messages">{% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}<main>{% block content %}{% endblock %}</main><footer><div class="footer-brand">BuildSpot</div><p>Your one-stop building materials market.</p><div><a href="{% url 'market' %}">Explore stores</a> · <a href="{% url 'signup' %}">Become a seller</a></div><small>© {% now "Y" %} BuildSpot. Built for the building industry.</small></footer>
+{% if user.is_authenticated %}
+<style>
+#buildspot-push-optin[hidden] { display: none !important; }
+#buildspot-push-optin {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:14px; flex-wrap:wrap; margin:14px auto; padding:15px 18px;
+  max-width:1100px; box-sizing:border-box; border:1px solid #f1d8c2;
+  border-radius:16px; background:linear-gradient(135deg,#fffaf5,#fff0e2);
+  box-shadow:0 5px 18px rgba(116,65,27,.07);
+}
+#buildspot-push-optin .push-ui-copy {display:flex;align-items:center;gap:12px}
+#buildspot-push-optin .push-ui-icon {
+  width:44px;height:44px;flex:0 0 44px;display:grid;place-items:center;
+  border-radius:14px;background:#ffdfc3;color:#a9470b
+}
+#buildspot-push-optin .push-ui-title {margin:0;color:#34251d;font-weight:750;font-size:15px}
+#buildspot-push-optin .push-ui-subtitle {margin:3px 0 0;color:#80695a;font-size:12px}
+#buildspot-enable-push {
+  border:0!important;border-radius:999px!important;padding:11px 19px!important;
+  background:#f47b20!important;color:#fff!important;font-weight:700!important;
+  cursor:pointer;box-shadow:0 4px 10px rgba(244,123,32,.2);
+}
+#buildspot-enable-push:hover {background:#d9620e!important}
+#buildspot-enable-push:focus-visible {outline:3px solid #f7b77f;outline-offset:3px}
+#buildspot-push-status {display:none;width:100%;font-size:12px;color:#69442e}
+@media(max-width:480px) {
+  #buildspot-push-optin {align-items:flex-start}
+  #buildspot-enable-push {width:100%}
+}
+</style>
+<div id="buildspot-push-optin">
+  <div class="push-ui-copy">
+    <span class="push-ui-icon" aria-hidden="true">
+      <svg width="23" height="23" viewBox="0 0 24 24" fill="none">
+        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"
+          stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+          stroke-linejoin="round"/>
+      </svg>
+    </span>
+    <span>
+      <span class="push-ui-title" style="display:block">Notifications</span>
+      <span class="push-ui-subtitle" style="display:block">Your BuildSpot updates</span>
+    </span>
+  </div>
+  <button type="button" id="buildspot-enable-push" class="button">Enable alerts</button>
+  <span id="buildspot-push-status" role="status" aria-live="polite"></span>
+</div>
+{% endif %}
+<button class="install-btn" id="install-app-button">Install BuildSpot App</button>{% if messages %}<div class="messages">{% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}<main>{% block content %}{% endblock %}</main><style>
+.footer-social-links {
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px 16px;
+  margin-top:12px;
+}
+.footer-social-links a {
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  text-decoration:none;
+}
+.footer-social-links a:hover {
+  color:#f36b0a;
+}
+</style>
+
+<footer class="buildspot-footer">
+<div class="footer-inner">
+  <div class="footer-about">
+    <div class="footer-brand">BuildSpot</div>
+    <p>Your one-stop building materials market.</p>
+    <a href="https://www.facebook.com/profile.php?id=61595890446010" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-facebook" aria-hidden="true"></i> BuildSpot on Facebook</a>
+    <div class="footer-social-links">
+      <a href="https://www.instagram.com/buildspot.official/" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-instagram" aria-hidden="true"></i> Instagram</a>
+      <a href="https://www.tiktok.com/@buildspot.store" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-tiktok" aria-hidden="true"></i> TikTok</a>
+      <a href="mailto:buildspot.officialmail@gmail.com"><i class="fa-solid fa-envelope" aria-hidden="true"></i> Email BuildSpot</a>
+    </div>
+  </div>
+  <div class="footer-links">
+    <strong>Marketplace</strong>
+    <a href="{% url 'market' %}">Explore stores</a>
+    <a href="{% url 'todays_deals' %}">Today's deals</a>
+    <a href="{% url 'signup' %}">Become a seller</a>
+    <a href="{% url 'community' %}">Materials Community</a>
+  </div>
+  <div class="footer-links">
+    <strong>About &amp; Policies</strong>
+    <a href="{% url 'about' %}">About BuildSpot</a>
+    <a href="{% url 'contact' %}">Contact</a>
+    <a href="{% url 'privacy_policy' %}">Privacy Policy</a>
+    <a href="{% url 'terms' %}">Terms of Use</a>
+    <a href="{% url 'seller_guidelines' %}">Seller Guidelines</a>
+    <a href="{% url 'community_guidelines' %}">Community Guidelines</a>
+  </div>
+</div>
+<div class="footer-bottom"><small>© {% now "Y" %} BuildSpot. Built for the building industry.</small></div>
+</footer>
 {% if user.is_authenticated %}
 <style>
 #buildspot-live-alerts {
@@ -150,4 +252,15 @@
 {% endif %}
 
 {% if user.is_authenticated %}<script>window.BUILDSPOT_PUSH_ENABLED = true;</script>{% endif %}
-<script src="{% static 'js/site.js' %}?v=notificationpermissionhide20261028"></script></body></html>
+<script src="{% static 'js/site.js' %}?v=rootpwapushfix20261116"></script></body></html>
+<style>
+.deal-home-badge{position:absolute;top:10px;left:10px;z-index:2;background:#c54d22;color:#fff;border-radius:999px;padding:5px 9px;font-size:.75rem;font-weight:800}
+.product-image{position:relative}
+.product-info del{display:inline-block;margin-left:6px;color:#887d73;font-size:.86rem;font-weight:500}
+</style>
+
+<style>
+.deal-home-badge{position:absolute;top:10px;left:10px;z-index:2;background:#c54d22;color:#fff;border-radius:999px;padding:5px 9px;font-size:.75rem;font-weight:800}
+.product-image{position:relative}
+.product-info del{display:inline-block;margin-left:6px;color:#887d73;font-size:.86rem;font-weight:500}
+</style>

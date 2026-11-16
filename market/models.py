@@ -38,13 +38,68 @@ class Category(models.Model):
     slug = models.SlugField(unique=True)
     def __str__(self): return self.name
 
+class ShowroomSection(models.Model):
+    store = models.ForeignKey(
+        Store,
+        on_delete=models.CASCADE,
+        related_name="showroom_sections",
+    )
+    name = models.CharField(max_length=100)
+    slug = models.SlugField()
+    description = models.TextField(blank=True)
+    cover_image = models.ImageField(
+        upload_to="showroom_sections/",
+        blank=True,
+        null=True,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name", "pk"]
+        unique_together = [("store", "slug")]
+
+    def __str__(self):
+        return f"{self.store.business_name} — {self.name}"
+
+
+class ShowroomSectionGalleryImage(models.Model):
+    section = models.ForeignKey(
+        ShowroomSection,
+        on_delete=models.CASCADE,
+        related_name="gallery_images",
+    )
+    image = models.ImageField(upload_to="showroom_sections/gallery/")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at", "pk"]
+
+    def __str__(self):
+        return f"Gallery image for {self.section.name}"
+
+
 class Product(models.Model):
     store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name="products")
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    showroom_section = models.ForeignKey(
+        ShowroomSection,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="products",
+    )
     name = models.CharField(max_length=160)
     slug = models.SlugField()
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    original_price = models.DecimalField(
+        max_digits=14, decimal_places=2, null=True, blank=True,
+        help_text="Optional previous price for a genuine discount.",
+    )
+    deal_expires_at = models.DateTimeField(
+        null=True, blank=True,
+        help_text="Optional date and time when this offer ends.",
+    )
     price_unit = models.CharField(max_length=40, default="unit")
     image = models.ImageField(upload_to="products/", blank=True, null=True)
     video_url = models.URLField(blank=True, help_text="Optional link to a product video")
@@ -52,6 +107,68 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     class Meta: ordering = ["-created_at"]; unique_together = [("store","slug")]
     def __str__(self): return self.name
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        update_fields = kwargs.get("update_fields")
+        price_is_being_saved = (
+            update_fields is None or "price" in update_fields
+        )
+        previous_price = None
+
+        if not is_new and price_is_being_saved:
+            previous_price = (
+                type(self).objects.filter(pk=self.pk)
+                .values_list("price", flat=True)
+                .first()
+            )
+
+        super().save(*args, **kwargs)
+
+        if (
+            price_is_being_saved
+            and self.price is not None
+            and (is_new or previous_price != self.price)
+        ):
+            ProductPriceHistory.objects.create(
+                product=self,
+                price=self.price,
+            )
+
+    @property
+    def discount_percent(self):
+        """Whole-number discount percentage for a genuine price reduction."""
+        if self.price is None or self.original_price is None:
+            return 0
+        if self.original_price <= 0 or self.original_price <= self.price:
+            return 0
+        return int(((self.original_price - self.price) * 100) / self.original_price)
+
+    @property
+    def savings_amount(self):
+        if self.price is None or self.original_price is None:
+            return 0
+        if self.original_price <= self.price:
+            return 0
+        return self.original_price - self.price
+
+
+class ProductPriceHistory(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="price_history",
+    )
+    price = models.DecimalField(max_digits=14, decimal_places=2)
+    recorded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["recorded_at", "pk"]
+        verbose_name_plural = "product price histories"
+
+    def __str__(self):
+        return f"{self.product.name}: {self.price} at {self.recorded_at}"
+
 
 class Enquiry(models.Model):
     STATUS = [("new","New"),("replied","Replied"),("closed","Closed")]
@@ -290,6 +407,31 @@ class PushSubscription(models.Model):
         return f"Push subscription for user {self.user_id}"
 
 
+class DailyInspirationPushLog(models.Model):
+    subscription = models.ForeignKey(
+        PushSubscription,
+        on_delete=models.CASCADE,
+        related_name="daily_inspiration_push_logs",
+    )
+    sent_date = models.DateField()
+    sent_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["subscription", "sent_date"],
+                name="unique_daily_inspiration_push_per_device_date",
+            )
+        ]
+        ordering = ["-sent_at"]
+
+    def __str__(self):
+        return (
+            f"Daily inspiration push to subscription "
+            f"{self.subscription_id} on {self.sent_date}"
+        )
+
+
 class BuyerProfile(models.Model):
     user = models.OneToOneField(
         User,
@@ -329,3 +471,143 @@ class RecentlyViewed(models.Model):
     def __str__(self):
         target = self.product or self.store or "Unknown item"
         return f"Recently viewed: {target}"
+
+
+class SavedProduct(models.Model):
+    """A product privately saved by a registered BuildSpot user."""
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="saved_products"
+    )
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="saved_by_users"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "product"],
+                name="unique_saved_product_per_user",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} saved {self.product.name}"
+
+
+class SavedStore(models.Model):
+    """A store privately saved by a registered BuildSpot user."""
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="saved_stores"
+    )
+    store = models.ForeignKey(
+        Store, on_delete=models.CASCADE, related_name="saved_by_users"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "store"],
+                name="unique_saved_store_per_user",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} saved {self.store.business_name}"
+
+
+# Additional images for BuildSpot product, buyer-request and community galleries.
+class ProductGalleryImage(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="gallery_images",
+    )
+    image = models.ImageField(upload_to="product_gallery/")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at", "pk"]
+
+    def __str__(self):
+        return f"Gallery image for {self.product.name}"
+
+
+class MaterialRequestGalleryImage(models.Model):
+    material_request = models.ForeignKey(
+        MaterialRequest,
+        on_delete=models.CASCADE,
+        related_name="gallery_images",
+    )
+    image = models.ImageField(upload_to="material_request_gallery/")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at", "pk"]
+
+    def __str__(self):
+        return f"Gallery image for request {self.material_request_id}"
+
+
+class CommunityPostGalleryImage(models.Model):
+    post = models.ForeignKey(
+        CommunityPost,
+        on_delete=models.CASCADE,
+        related_name="gallery_images",
+    )
+    image = models.ImageField(upload_to="community_post_gallery/")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at", "pk"]
+
+    def __str__(self):
+        return f"Gallery image for community post {self.post_id}"
+
+
+# BuildSpot comeback reminders: authenticated user activity and reminder history.
+from django.utils import timezone
+
+
+class UserActivity(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="buildspot_activity",
+    )
+    last_seen = models.DateTimeField(default=timezone.now, db_index=True)
+
+    def __str__(self):
+        return f"Last activity for {self.user.username}: {self.last_seen}"
+
+
+class ComebackReminderLog(models.Model):
+    STAGE_CHOICES = [
+        (1, "First reminder"),
+        (2, "Second reminder"),
+        (3, "Third reminder"),
+    ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="comeback_reminder_logs",
+    )
+    activity_since = models.DateTimeField()
+    stage = models.PositiveSmallIntegerField(choices=STAGE_CHOICES)
+    sent_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-sent_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "activity_since", "stage"],
+                name="unique_comeback_reminder_per_activity_stage",
+            )
+        ]
+
+    def __str__(self):
+        return f"Comeback reminder {self.stage} for {self.user.username}"

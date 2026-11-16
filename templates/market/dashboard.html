@@ -36,4 +36,90 @@
     <span class="seller-premium-note">Your business. Your showroom. Your customers.</span>
   </div>
 </div>
-</section><section class="dashboard-stats"><div><small>PRODUCTS</small><strong>{{ products|length }}</strong></div><div><small>BUYER ENQUIRIES</small><strong>{{ enquiries|length }}</strong></div><div><small>STORE STATUS</small><strong class="status-text">{% if store.verification_status == 'verified' %}Verified{% else %}{{ store.get_verification_status_display }}{% endif %}</strong></div></section><section class="dashboard-layout"><div class="dashboard-panel"><div class="panel-heading"><div><h2>Product catalogue</h2><p>Keep your showroom current.</p></div><a class="button button-orange" href="{% url 'product_add' %}"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add product</a></div><div class="manage-list">{% for product in products %}<div class="manage-item">{% if product.image %}<img src="{{ product.image.url }}" alt="">{% else %}<div class="manage-placeholder"><i class="fa-regular fa-image" aria-hidden="true"></i></div>{% endif %}<div class="manage-main"><b>{{ product.name }}</b><small>{% if product.price %}₦{{ product.price|floatformat:2 }} / {{ product.price_unit }}{% else %}Ask for price{% endif %} · {% if product.available %}Available{% else %}Unavailable{% endif %}</small></div><a class="text-link" href="{% url 'product_edit' product.pk %}"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> Edit</a><form method="post" action="{% url 'product_delete' product.pk %}" onsubmit="return confirm('Delete this product?')">{% csrf_token %}<button class="delete-button" type="submit" aria-label="Delete {{ product.name }}"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></form></div>{% empty %}<div class="empty-inline"><p>No products yet. Add your first product to start your showroom.</p><a href="{% url 'product_add' %}">Add a product <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div>{% endfor %}</div></div><div class="dashboard-panel enquiries-panel"><div class="panel-heading"><div><h2>Buyer enquiries</h2><p>Requests from people who want to buy your materials.</p></div></div>{% for enquiry in enquiries %}<article class="enquiry-row"><div><b>{{ enquiry.buyer_name }} {% if enquiry.product %}<span>· {{ enquiry.product.name }}</span>{% endif %}</b><p>{{ enquiry.message }}</p><small>{{ enquiry.buyer_email }}{% if enquiry.buyer_phone %} · {{ enquiry.buyer_phone }}{% endif %} · {{ enquiry.created_at|date:'M d, Y H:i' }}</small>{% if enquiry.quantity or enquiry.delivery_location %}<small>Quantity: {{ enquiry.quantity|default:'Not specified' }} · Delivery: {{ enquiry.delivery_location|default:'Not specified' }}</small>{% endif %}</div><span class="enquiry-status">{{ enquiry.get_status_display }}</span></article>{% empty %}<div class="empty-inline">No buyer enquiries yet. They will appear here when buyers contact your store.</div>{% endfor %}</div></section>{% endblock %}
+</section><section class="dashboard-stats"><div><small>PRODUCTS</small><strong>{{ products|length }}</strong></div><div><small>BUYER ENQUIRIES</small><strong>{{ enquiries|length }}</strong></div><div><small>STORE STATUS</small><strong class="status-text">{% if store.verification_status == 'verified' %}Verified{% else %}{{ store.get_verification_status_display }}{% endif %}</strong></div>
+</section>
+<section class="dashboard-panel showroom-sections-panel">
+  <div class="panel-heading">
+    <div>
+      <h2>Digital showroom sections</h2>
+      <p>Organise your products into sections buyers can browse.</p>
+    </div>
+    <a class="button button-orange" href="{% url 'showroom_section_add' %}">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i> Create section
+    </a>
+  </div>
+
+  <div class="showroom-section-cards">
+    {% for section in sections %}
+      <article class="showroom-section-card">
+        <div class="showroom-card-cover">
+          {% if section.cover_image %}
+            <img src="{{ section.cover_image.url }}" alt="{{ section.name }}">
+          {% else %}
+            <div class="showroom-card-cover-placeholder">
+              <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+            </div>
+          {% endif %}
+          <span class="showroom-card-label">YOUR COLLECTION</span>
+        </div>
+
+        <div class="showroom-card-content">
+          <div class="showroom-card-heading">
+            <div>
+              <h3>{{ section.name }}</h3>
+              {% if section.description %}
+                <p>{{ section.description|truncatechars:110 }}</p>
+              {% else %}
+                <p class="showroom-card-subtitle">A collection in your digital showroom</p>
+              {% endif %}
+            </div>
+            <a class="showroom-card-edit"
+               href="{% url 'showroom_section_edit' section.pk %}"
+               aria-label="Edit {{ section.name }}">
+              <i class="fa-solid fa-pen" aria-hidden="true"></i>
+            </a>
+          </div>
+
+          <div class="showroom-card-gallery">
+            {% for gallery_image in section.gallery_images.all %}
+              <img src="{{ gallery_image.image.url }}" alt="{{ section.name }} gallery image">
+            {% endfor %}
+
+            <a class="showroom-gallery-add"
+               href="{% url 'showroom_section_edit' section.pk %}"
+               aria-label="Add more images to {{ section.name }}">
+              <span><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
+              <small>Add images</small>
+            </a>
+          </div>
+
+          <div class="showroom-card-footer">
+            <span><i class="fa-regular fa-images" aria-hidden="true"></i> Section gallery</span>
+            <a href="{% url 'showroom_section_edit' section.pk %}">
+              Manage section <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </a>
+          </div>
+        </div>
+
+        <form class="showroom-card-delete"
+              method="post"
+              action="{% url 'showroom_section_delete' section.pk %}"
+              onsubmit="return confirm('Delete this section? Its products will remain in your catalogue.')">
+          {% csrf_token %}
+          <button class="delete-button" type="submit" aria-label="Delete {{ section.name }}">
+            <i class="fa-solid fa-trash" aria-hidden="true"></i>
+          </button>
+        </form>
+      </article>
+    {% empty %}
+      <div class="empty-inline">
+        <p>You have not created any showroom sections yet.</p>
+        <a href="{% url 'showroom_section_add' %}">
+          Create your first section <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+<section class="dashboard-layout">
+<div class="dashboard-panel"><div class="panel-heading"><div><h2>Product catalogue</h2><p>Keep your showroom current.</p></div><a class="button button-orange" href="{% url 'product_add' %}"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add product</a></div><div class="manage-list">{% for product in products %}<div class="manage-item">{% if product.image %}<img src="{{ product.image.url }}" alt="">{% else %}<div class="manage-placeholder"><i class="fa-regular fa-image" aria-hidden="true"></i></div>{% endif %}<div class="manage-main"><b>{{ product.name }}</b><small>{% if product.price %}₦{{ product.price|floatformat:2 }} / {{ product.price_unit }}{% else %}Ask for price{% endif %} · {% if product.available %}Available{% else %}Unavailable{% endif %}</small></div><a class="text-link" href="{% url 'product_edit' product.pk %}"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> Edit</a><form method="post" action="{% url 'product_delete' product.pk %}" onsubmit="return confirm('Delete this product?')">{% csrf_token %}<button class="delete-button" type="submit" aria-label="Delete {{ product.name }}"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></form></div>{% empty %}<div class="empty-inline"><p>No products yet. Add your first product to start your showroom.</p><a href="{% url 'product_add' %}">Add a product <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div>{% endfor %}</div></div><div class="dashboard-panel enquiries-panel"><div class="panel-heading"><div><h2>Buyer enquiries</h2><p>Requests from people who want to buy your materials.</p></div></div>{% for enquiry in enquiries %}<article class="enquiry-row"><div><b>{{ enquiry.buyer_name }} {% if enquiry.product %}<span>· {{ enquiry.product.name }}</span>{% endif %}</b><p>{{ enquiry.message }}</p><small>{{ enquiry.buyer_email }}{% if enquiry.buyer_phone %} · {{ enquiry.buyer_phone }}{% endif %} · {{ enquiry.created_at|date:'M d, Y H:i' }}</small>{% if enquiry.quantity or enquiry.delivery_location %}<small>Quantity: {{ enquiry.quantity|default:'Not specified' }} · Delivery: {{ enquiry.delivery_location|default:'Not specified' }}</small>{% endif %}</div><span class="enquiry-status">{{ enquiry.get_status_display }}</span></article>{% empty %}<div class="empty-inline">No buyer enquiries yet. They will appear here when buyers contact your store.</div>{% endfor %}</div></section>{% endblock %}

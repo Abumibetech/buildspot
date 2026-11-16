@@ -1,4 +1,94 @@
-{% extends 'base.html' %}{% block title %}{{ store.business_name }} · BuildSpot{% endblock %}{% block content %}<section class="store-cover"><div class="store-profile-logo">{% if store.logo %}<img src="{{ store.logo.url }}" alt="{{ store.business_name }}">{% else %}{{ store.business_name|first|upper }}{% endif %}</div><div class="store-profile-info"><div class="eyebrow">DIGITAL SHOWROOM {% if store.verification_status == 'verified' %}<span class="verified-label"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> VERIFIED SELLER</span>{% endif %}</div><h1>{{ store.business_name }}</h1><p>{{ store.description|default:'Welcome to our BuildSpot showroom. Browse our products and send us an enquiry for pricing and availability.' }}</p><div class="store-contact-row"><span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> {{ store.address }}, {{ store.city }}, {{ store.state|lower }}</span><a href="tel:{{ store.phone }}"><i class="fa-solid fa-phone" aria-hidden="true"></i> {{ store.phone }}</a>{% if store.whatsapp %}{% endif %}</div></div></section><section class="section showroom-layout"><div><div class="section-heading"><div><span class="eyebrow">OUR CATALOGUE</span><h2>Products & materials</h2><p>Ask about quantity, delivery and current availability.</p></div></div><div class="product-grid">{% for product in products %}<article class="product-card"><a href="{% url 'product_detail' store.slug product.slug %}"><div class="product-image">{% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}<span><i class="fa-regular fa-image" aria-hidden="true"></i></span>{% endif %}</div></a><div class="product-info"><small>{{ product.category|default:'Building material' }}</small><h3><a href="{% url 'product_detail' store.slug product.slug %}">{{ product.name }}</a></h3><b>{% if product.price %}₦{{ product.price|floatformat:2 }} / {{ product.price_unit }}{% else %}Contact for price{% endif %}</b><p>{{ product.description|truncatewords:18 }}</p>{% if product.video_url %}<a class="text-link" href="{{ product.video_url }}" target="_blank" rel="noopener"><i class="fa-solid fa-circle-play" aria-hidden="true"></i> Watch product video</a>{% endif %}</div></article>{% empty %}<p class="muted">This store has not uploaded products yet. Please check back soon.</p>{% endfor %}</div></div></section>{% for ad in ads %}<a class="ad-banner" href="{{ ad.target_url }}" target="_blank" rel="noopener"><img src="{{ ad.image.url }}" alt="{{ ad.title }}"><span>Sponsored · {{ ad.title }}</span></a>{% endfor %}
+{% extends 'base.html' %}{% block title %}{{ store.business_name }} · BuildSpot{% endblock %}{% block content %}<section class="store-cover"><div class="store-profile-logo">{% if store.logo %}<img src="{{ store.logo.url }}" alt="{{ store.business_name }}">{% else %}{{ store.business_name|first|upper }}{% endif %}</div><div class="store-profile-info"><div class="eyebrow">DIGITAL SHOWROOM {% if store.verification_status == 'verified' %}<span class="verified-label"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> VERIFIED SELLER</span>{% endif %}</div><h1>{{ store.business_name }}</h1>
+{% if user.is_authenticated %}
+<form method="post" action="{% url 'toggle_saved_store' store.id %}" class="favourite-action">
+  {% csrf_token %}
+  <button type="submit"><i class="fa-regular fa-heart" aria-hidden="true"></i> Save / remove store</button>
+</form>
+{% else %}
+<p><a href="{% url 'login' %}?next={{ request.path|urlencode }}">Log in to save this store</a></p>
+{% endif %}<p>{{ store.description|default:'Welcome to our BuildSpot showroom. Browse our products and send us an enquiry for pricing and availability.' }}</p><div class="store-contact-row"><span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> {{ store.address }}, {{ store.city }}, {{ store.state|lower }}</span><a href="tel:{{ store.phone }}"><i class="fa-solid fa-phone" aria-hidden="true"></i> {{ store.phone }}</a>{% if store.whatsapp %}{% endif %}</div></div></section><section class="section showroom-layout"><div><div class="section-heading"><div><span class="eyebrow">OUR CATALOGUE</span><h2>Products & materials</h2><p>Ask about quantity, delivery and current availability.</p></div></div>
+<form method="get" action="{{ store.get_absolute_url }}" class="showroom-search">
+  <input
+    type="search"
+    name="q"
+    value="{{ search_query }}"
+    placeholder="Search this showroom by product or material..."
+    aria-label="Search products in this showroom"
+  >
+  {% if selected_section %}
+    <input type="hidden" name="section" value="{{ selected_section.slug }}">
+  {% endif %}
+  <button class="button button-orange" type="submit">
+    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Search
+  </button>
+</form>
+
+{% if sections %}
+  <nav class="showroom-section-nav" aria-label="Showroom sections">
+    <a
+      class="showroom-section-link {% if not selected_section %}is-active{% endif %}"
+      href="{{ store.get_absolute_url }}{% if search_query %}?q={{ search_query|urlencode }}{% endif %}"
+    >
+      <span>All products</span>
+    </a>
+
+    {% for section in sections %}
+      <a
+        class="showroom-section-link {% if selected_section.pk == section.pk %}is-active{% endif %}"
+        href="{{ store.get_absolute_url }}?section={{ section.slug|urlencode }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"
+      >
+        {% if section.cover_image %}
+          <img src="{{ section.cover_image.url }}" alt="">
+        {% else %}
+          <span class="showroom-section-icon">
+            <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+          </span>
+        {% endif %}
+        <span>
+          <strong>{{ section.name }}</strong>
+          <small>{% if section.product_count %}{{ section.product_count }} product{{ section.product_count|pluralize }}{% endif %}</small>
+        </span>
+      </a>
+    {% endfor %}
+  </nav>
+{% endif %}
+
+{% if selected_section %}
+  <div class="showroom-selected-section">
+    <span class="eyebrow">BROWSING SECTION</span>
+    <h3>{{ selected_section.name }}</h3>
+    {% if selected_section.description %}
+      <p>{{ selected_section.description }}</p>
+    {% endif %}
+    {% if selected_section.gallery_images.all %}
+      <div class="showroom-gallery-grid showroom-gallery-public">
+        {% for gallery_image in selected_section.gallery_images.all %}
+          <img src="{{ gallery_image.image.url }}" alt="{{ selected_section.name }} gallery image">
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+{% endif %}
+
+{% if search_query %}
+  <p class="showroom-search-summary">
+    Search results for <strong>{{ search_query }}</strong>
+    · <a href="{% if selected_section %}{{ store.get_absolute_url }}?section={{ selected_section.slug|urlencode }}{% else %}{{ store.get_absolute_url }}{% endif %}">Clear search</a>
+  </p>
+{% endif %}
+
+<div class="product-grid">{% for product in products %}
+<article class="product-card"><a href="{% url 'product_detail' store.slug product.slug %}"><div class="product-image">{% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}<span><i class="fa-regular fa-image" aria-hidden="true"></i></span>{% endif %}</div></a><div class="product-info"><small>{{ product.category|default:'Building material' }}</small><h3><a href="{% url 'product_detail' store.slug product.slug %}">{{ product.name }}</a></h3><b>{% if product.price %}₦{{ product.price|floatformat:2 }} / {{ product.price_unit }}{% else %}Contact for price{% endif %}</b><p>{{ product.description|truncatewords:18 }}</p>{% if product.video_url %}<a class="text-link" href="{{ product.video_url }}" target="_blank" rel="noopener"><i class="fa-solid fa-circle-play" aria-hidden="true"></i> Watch product video</a>{% endif %}</div></article>{% empty %}
+<p class="muted">
+  {% if search_query %}
+    No products matched your search. Try another product name or clear your search.
+  {% elif selected_section %}
+    This section does not have any available products yet.
+  {% else %}
+    This store has not uploaded products yet. Please check back soon.
+  {% endif %}
+</p>
+{% endfor %}</div></div></section>{% for ad in ads %}<a class="ad-banner" href="{{ ad.target_url }}" target="_blank" rel="noopener"><img src="{{ ad.image.url }}" alt="{{ ad.title }}"><span>Sponsored · {{ ad.title }}</span></a>{% endfor %}
 {% if store.whatsapp_link_number %}
 <a class="buildspot-floating-whatsapp"
    href="https://wa.me/{{ store.whatsapp_link_number }}?text=Hello%2C%20I%20am%20interested%20in%20your%20products%20on%20BuildSpot."

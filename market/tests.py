@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Category, CommunityNotification, MaterialRequest, Product, Store
+from .models import Category, CommunityNotification, MaterialRequest, Product, SellerQuotation, Store
 
 
 class MaterialRequestNotificationTests(TestCase):
@@ -152,3 +152,132 @@ class MaterialRequestNotificationTests(TestCase):
         self.assertContains(response, "Contact buyer on WhatsApp")
         self.assertContains(response, "https://wa.me/2348012345678")
         self.assertNotContains(response, request_obj.delivery_location)
+
+
+class CrossCityQuotationTests(TestCase):
+    def setUp(self):
+        self.buyer = User.objects.create_user(
+            username="cross_city_buyer",
+            password="test-password-123",
+        )
+        self.seller = User.objects.create_user(
+            username="cross_city_seller",
+            password="test-password-123",
+        )
+        self.other_state_seller = User.objects.create_user(
+            username="different_state_seller",
+            password="test-password-123",
+        )
+
+        self.seller_store = Store.objects.create(
+            owner=self.seller,
+            business_name="Bichi Building Supplies",
+            slug="bichi-building-supplies",
+            phone="08012345678",
+            state="Kano",
+            city="Bichi",
+            address="Bichi store address",
+            is_active=True,
+        )
+
+        Store.objects.create(
+            owner=self.other_state_seller,
+            business_name="Kaduna Building Supplies",
+            slug="kaduna-building-supplies",
+            phone="08012345679",
+            state="Kaduna State",
+            city="Kaduna",
+            address="Kaduna store address",
+            is_active=True,
+        )
+
+        self.material_request = MaterialRequest.objects.create(
+            buyer=self.buyer,
+            state="Kano",
+            city="Kano",
+            delivery_location="PRIVATE BUYER ADDRESS",
+            material="Cement",
+            quantity="50 bags",
+            status="open",
+        )
+
+    def test_seller_in_another_city_of_same_state_can_see_quote_form(self):
+        self.client.force_login(self.seller)
+
+        response = self.client.get(
+            reverse(
+                "community_request_detail",
+                args=[self.material_request.pk],
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Send your quotation")
+
+    def test_seller_in_another_city_of_same_state_can_submit_quote(self):
+        self.client.force_login(self.seller)
+
+        response = self.client.post(
+            reverse(
+                "community_quotation_create",
+                args=[self.material_request.pk],
+            ),
+            {
+                "price": "500000",
+                "price_unit": "total",
+                "delivery_days": "2",
+                "delivery_details": "Delivery to Kano available; fee included",
+                "message": "We can supply and deliver the requested cement.",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        quotation = SellerQuotation.objects.get(
+            material_request=self.material_request,
+            store=self.seller_store,
+        )
+        self.assertEqual(str(quotation.price), "500000.00")
+        self.assertEqual(quotation.status, "submitted")
+
+        self.assertTrue(
+            CommunityNotification.objects.filter(
+                recipient=self.buyer,
+                title="A seller sent you a quotation",
+            ).exists()
+        )
+
+    def test_seller_in_another_state_cannot_submit_quote(self):
+        self.client.force_login(self.other_state_seller)
+
+        response = self.client.get(
+            reverse(
+                "community_request_detail",
+                args=[self.material_request.pk],
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Send your quotation")
+
+        response = self.client.post(
+            reverse(
+                "community_quotation_create",
+                args=[self.material_request.pk],
+            ),
+            {
+                "price": "500000",
+                "price_unit": "total",
+                "delivery_days": "2",
+                "delivery_details": "Delivery available",
+                "message": "Test quotation",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            SellerQuotation.objects.filter(
+                material_request=self.material_request,
+            ).count(),
+            0,
+        )

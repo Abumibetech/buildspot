@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Page Not Found | BuildSpot{% endblock %}
+
+{% block extra_head %}
+<style>
+.buildspot-404 {
+    min-height: 68vh;
+    padding: 65px 22px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #fffaf4, #fff1e4);
+}
+.buildspot-404-card {
+    width: 100%;
+    max-width: 690px;
+    padding: 48px 35px;
+    text-align: center;
+    background: #fff;
+    border: 1px solid #f2dfce;
+    border-radius: 24px;
+    box-shadow: 0 18px 55px rgba(8, 46, 89, .09);
+}
+.buildspot-404-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 20px;
+    display: grid;
+    place-items: center;
+    border-radius: 28px;
+    background: #fff0e4;
+    color: #f36b0a;
+    font-size: 43px;
+}
+.buildspot-404-code {
+    display: inline-block;
+    padding: 6px 13px;
+    border-radius: 30px;
+    background: #fff0e4;
+    color: #e65b0b;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+.buildspot-404 h1 {
+    margin: 18px 0 12px;
+    color: #082e59;
+    font: 800 clamp(29px, 5vw, 43px)/1.15 Manrope, sans-serif;
+    letter-spacing: -1.5px;
+}
+.buildspot-404 p {
+    max-width: 510px;
+    margin: 0 auto 13px;
+    color: #687686;
+    font-size: 15px;
+    line-height: 1.8;
+}
+.buildspot-404 .help-text {
+    margin-top: 18px;
+    font-size: 12px;
+}
+.buildspot-404-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 27px;
+}
+.buildspot-404-actions .button {
+    min-height: 48px;
+}
+@media(max-width:600px) {
+    .buildspot-404 { padding: 38px 16px; }
+    .buildspot-404-card { padding: 36px 20px; }
+    .buildspot-404 p { font-size: 13px; }
+}
+body.dark .buildspot-404 {
+    background: linear-gradient(135deg, #101720, #151e29);
+}
+body.dark .buildspot-404-card {
+    background: #111923;
+    border-color: #303c4a;
+}
+body.dark .buildspot-404 h1 { color: #f3f5f8; }
+body.dark .buildspot-404 p { color: #bdc6d1; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="buildspot-404">
+    <div class="buildspot-404-card">
+        <div class="buildspot-404-icon" aria-hidden="true">
+            <i class="fa-solid fa-box-open"></i>
+        </div>
+        <span class="buildspot-404-code">ERROR 404</span>
+        <h1>Oops! This request is unavailable.</h1>
+        <p>
+            We couldn't find the page or material request you're looking for.
+            It may have been deleted by the buyer, removed from BuildSpot,
+            or is no longer available.
+        </p>
+        <p>
+            You can explore the Community to discover other material requests
+            and connect with buyers and sellers.
+        </p>
+        <div class="buildspot-404-actions">
+            <a class="button button-orange" href="{% url 'community' %}">
+                <i class="fa-solid fa-users"></i> Explore Community
+            </a>
+            <a class="button button-outline" href="{% url 'home' %}">
+                <i class="fa-solid fa-house"></i> Back to Home
+            </a>
+        </div>
+        <p class="help-text">
+            If you believe this is a mistake, please try again later or contact
+            BuildSpot support.
+        </p>
+    </div>
+</section>
+{% endblock %}

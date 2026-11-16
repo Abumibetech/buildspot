@@ -372,6 +372,143 @@
       .details { grid-template-columns: minmax(0, 1fr); }
       .bottom-nav { flex-direction: column; }
     }
+
+    .quotation-results {
+      margin-top: 26px;
+      padding-top: 22px;
+      border-top: 1px solid #eee4da;
+    }
+
+    .quotation-card {
+      margin-top: 14px;
+      padding: 17px;
+      border: 1px solid #fed7aa;
+      border-radius: 14px;
+      background: #fffaf5;
+    }
+
+    .quotation-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .quotation-heading h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .quotation-status {
+      padding: 5px 9px;
+      border-radius: 20px;
+      background: #ffedd5;
+      color: #9a3412;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .quotation-price {
+      margin: 13px 0;
+      color: var(--orange-dark);
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    .quotation-price small {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .quotation-meta {
+      display: grid;
+      gap: 6px;
+      color: #57534e;
+      font-size: 13px;
+    }
+
+    .quotation-message {
+      margin: 13px 0 0;
+      overflow-wrap: anywhere;
+    }
+
+    .quotation-date, .empty-quotations {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .seller-quote-form, .seller-quote-status {
+      margin-top: 20px;
+      padding: 18px;
+      border: 1px solid #fed7aa;
+      border-radius: 14px;
+      background: #fffaf5;
+    }
+
+    .seller-quote-form h3 {
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+
+    .seller-quote-form > p {
+      margin: 0 0 15px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .quote-field {
+      margin-bottom: 13px;
+    }
+
+    .quote-field label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .quote-field input, .quote-field textarea {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 11px 12px;
+      border: 1px solid #e7ddd3;
+      border-radius: 9px;
+      background: white;
+      color: #292524;
+      font: inherit;
+      font-size: 14px;
+    }
+
+    .quote-field input:focus, .quote-field textarea:focus {
+      outline: 2px solid #fed7aa;
+      border-color: var(--orange);
+    }
+
+    .quote-error {
+      display: block;
+      margin-top: 5px;
+      color: #b91c1c;
+      font-size: 12px;
+    }
+
+    .seller-quote-status {
+      display: grid;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .seller-quote-status span {
+      color: var(--orange-dark);
+      font-size: 19px;
+      font-weight: 900;
+    }
+
+    .seller-quote-status small {
+      color: var(--muted);
+    }
+
   </style>
 </head>
 <body>
@@ -423,6 +560,16 @@
           </div>
         {% endif %}
 
+        {% if item.gallery_images.all %}
+          <div class="request-gallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:9px;margin:12px 0;">
+            {% for gallery_image in item.gallery_images.all %}
+              <a href="{{ gallery_image.image.url }}" target="_blank" rel="noopener noreferrer" style="display:block;aspect-ratio:1;overflow:hidden;border-radius:10px;">
+                <img src="{{ gallery_image.image.url }}" alt="Additional reference photo for {{ item.material }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
+              </a>
+            {% endfor %}
+          </div>
+        {% endif %}
+
         <div class="card-body">
           <span class="status{% if item.status != 'open' %} closed{% endif %}">
             {{ item.get_status_display }}
@@ -465,6 +612,65 @@
             Posted {{ item.created_at|date:"M j, Y, g:i a" }}.
             The exact delivery address is not shown publicly.
           </p>
+          {% if user.is_authenticated and item.buyer_id == user.id %}
+            <section class="quotation-results">
+              <h2 class="section-title">
+                Seller quotations ({{ quotations|length }})
+              </h2>
+
+              {% for quotation in quotations %}
+                <article class="quotation-card" id="community-quotation-{{ quotation.id }}">
+                  <div class="quotation-heading">
+                    <h3>{{ quotation.store.business_name }}</h3>
+                    <span class="quotation-status">{{ quotation.get_status_display }}</span>
+                  </div>
+
+                  <p class="quotation-price">
+                    ₦{{ quotation.price|floatformat:2 }}
+                    <small>/ {{ quotation.price_unit }}</small>
+                  </p>
+
+                  <div class="quotation-meta">
+                    <span>Delivery: {{ quotation.delivery_days }} day{{ quotation.delivery_days|pluralize }}</span>
+                    {% if quotation.delivery_details %}
+                      <span>{{ quotation.delivery_details }}</span>
+                    {% endif %}
+                  </div>
+
+                  {% if quotation.message %}
+                    <p class="quotation-message">{{ quotation.message|linebreaksbr }}</p>
+                  {% endif %}
+
+                  <p class="quotation-date">
+                    Received {{ quotation.created_at|date:"M j, Y, g:i a" }}
+                  </p>
+
+                  {% if item.status == "open" and quotation.status == "submitted" %}
+                    <div class="quotation-actions">
+                      <form method="post" action="{% url 'community_quotation_accept' quotation.id %}" class="action-form">
+                        {% csrf_token %}
+                        <button type="submit" class="button button-green"
+                                onclick="return confirm('Accept this quotation? All other submitted quotations will be declined.');">
+                          Accept quotation
+                        </button>
+                      </form>
+                      <form method="post" action="{% url 'community_quotation_decline' quotation.id %}" class="action-form">
+                        {% csrf_token %}
+                        <button type="submit" class="button button-light"
+                                onclick="return confirm('Decline this quotation?');">
+                          Decline
+                        </button>
+                      </form>
+                    </div>
+                  {% endif %}
+                </article>
+              {% empty %}
+                <p class="empty-quotations">
+                  No sellers have submitted a quotation yet. Check back later.
+                </p>
+              {% endfor %}
+            </section>
+          {% endif %}
         </div>
       </article>
 
@@ -484,6 +690,48 @@
             <p class="privacy-note">This request is no longer open for responses.</p>
           {% else %}
             <p class="privacy-note">WhatsApp contact details are not available for this request.</p>
+          {% endif %}
+
+          {% if user.is_authenticated and item.buyer_id != user.id %}
+            {% if seller_quotation %}
+              <div class="seller-quote-status">
+                <strong>Your quotation has been submitted.</strong>
+                <span>₦{{ seller_quotation.price|floatformat:2 }} / {{ seller_quotation.price_unit }}</span>
+                <small>Status: {{ seller_quotation.get_status_display }}</small>
+              </div>
+            {% elif quotation_form %}
+              <div class="seller-quote-form">
+                <h3>Send your quotation</h3>
+                <p>Give the buyer your best price and delivery offer.</p>
+
+                <form method="post"
+                      action="{% url 'community_quotation_create' item.id %}">
+                  {% csrf_token %}
+
+                  {% for field in quotation_form %}
+                    <div class="quote-field">
+                      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                      {{ field }}
+                      {% for error in field.errors %}
+                        <small class="quote-error">{{ error }}</small>
+                      {% endfor %}
+                    </div>
+                  {% endfor %}
+
+                  {% if quotation_form.non_field_errors %}
+                    <div class="quote-error">
+                      {{ quotation_form.non_field_errors }}
+                    </div>
+                  {% endif %}
+
+                  <button class="button button-orange" type="submit">
+                    Submit quotation
+                  </button>
+                </form>
+              </div>
+            {% elif seller_store and item.status != "open" %}
+              <p class="privacy-note">This request is closed and no longer accepts quotations.</p>
+            {% endif %}
           {% endif %}
 
           {% if user.is_authenticated and item.buyer_id == user.id and item.status == "open" %}

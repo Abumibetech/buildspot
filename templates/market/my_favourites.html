@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="container" style="max-width:1100px;margin:30px auto;padding:0 16px;">
+  <h1>My Favourites</h1>
+  <p>Your privately saved BuildSpot products and stores.</p>
+
+  <h2>Saved Products</h2>
+  {% if saved_products %}
+    <div class="favourites-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;">
+      {% for saved in saved_products %}
+        <article style="border:1px solid #eadfce;border-radius:12px;padding:16px;">
+          {% if saved.product.image %}
+            <a href="{% url 'product_detail' saved.product.store.slug saved.product.slug %}">
+              <img src="{{ saved.product.image.url }}" alt="{{ saved.product.name }}" loading="lazy" style="width:100%;height:170px;object-fit:cover;border-radius:8px;">
+            </a>
+          {% endif %}
+          <h3><a href="{% url 'product_detail' saved.product.store.slug saved.product.slug %}">{{ saved.product.name }}</a></h3>
+          <p><a href="{% url 'store_detail' saved.product.store.slug %}">{{ saved.product.store.business_name }}</a></p>
+          <p>₦{{ saved.product.price|floatformat:2 }}{% if saved.product.price_unit %} / {{ saved.product.price_unit }}{% endif %}</p>
+          <form method="post" action="{% url 'toggle_saved_product' saved.product.id %}">
+            {% csrf_token %}
+            <button type="submit">Remove from favourites</button>
+          </form>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>You haven't saved any products yet.</p>
+  {% endif %}
+
+  <h2 style="margin-top:32px;">Saved Stores</h2>
+  {% if saved_stores %}
+    <div class="favourites-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;">
+      {% for saved in saved_stores %}
+        <article style="border:1px solid #eadfce;border-radius:12px;padding:16px;">
+          {% if saved.store.logo %}
+            <img src="{{ saved.store.logo.url }}" alt="{{ saved.store.business_name }} logo" loading="lazy" style="width:80px;height:80px;object-fit:contain;">
+          {% endif %}
+          <h3><a href="{% url 'store_detail' saved.store.slug %}">{{ saved.store.business_name }}</a></h3>
+          <p>{{ saved.store.city }}{% if saved.store.state %}, {{ saved.store.state }}{% endif %}</p>
+          <form method="post" action="{% url 'toggle_saved_store' saved.store.id %}">
+            {% csrf_token %}
+            <button type="submit">Remove from favourites</button>
+          </form>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>You haven't saved any stores yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

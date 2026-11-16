@@ -190,6 +190,102 @@ class PushWorkflowTests(TestCase):
         self.assertNotIn("PRIVATE TEST ADDRESS", kwargs["body"])
 
     @patch("market.push_notifications.send_web_push")
+    def test_multiple_matching_requests_create_only_one_alert_per_buyer(
+        self, send_push
+    ):
+        for quantity in ("10 bags", "20 bags"):
+            MaterialRequest.objects.create(
+                buyer=self.buyer,
+                state="Kano",
+                city="Kano",
+                delivery_location="PRIVATE TEST ADDRESS",
+                material="Cement",
+                quantity=quantity,
+                status="open",
+            )
+
+        self.client.force_login(self.seller)
+        response = self.client.post(
+            reverse("product_add"),
+            {
+                "category": str(self.category.pk),
+                "name": "Duplicate Alert Test Cement",
+                "description": "Test product",
+                "price": "",
+                "price_unit": "bag",
+                "video_url": "",
+                "available": "on",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        alerts = CommunityNotification.objects.filter(
+            recipient=self.buyer,
+            title__icontains="Duplicate Alert Test Cement",
+        )
+        self.assertEqual(alerts.count(), 1)
+
+        send_push.assert_called_once()
+        args, kwargs = send_push.call_args
+        self.assertEqual(args[0], [self.buyer.pk])
+        self.assertNotIn("PRIVATE TEST ADDRESS", kwargs["body"])
+
+    @patch("market.push_notifications.send_web_push")
+    def test_product_alert_ignores_other_state_closed_and_unrelated_requests(
+        self, send_push
+    ):
+        MaterialRequest.objects.create(
+            buyer=self.buyer,
+            state="Abuja",
+            city="Abuja",
+            delivery_location="PRIVATE TEST ADDRESS",
+            material="Cement",
+            quantity="10 bags",
+            status="open",
+        )
+        MaterialRequest.objects.create(
+            buyer=self.buyer,
+            state="Kano",
+            city="Kano",
+            delivery_location="PRIVATE TEST ADDRESS",
+            material="Cement",
+            quantity="10 bags",
+            status="fulfilled",
+        )
+        MaterialRequest.objects.create(
+            buyer=self.buyer,
+            state="Kano",
+            city="Kano",
+            delivery_location="PRIVATE TEST ADDRESS",
+            material="Wooden doors",
+            quantity="2",
+            status="open",
+        )
+
+        self.client.force_login(self.seller)
+        response = self.client.post(
+            reverse("product_add"),
+            {
+                "category": str(self.category.pk),
+                "name": "Relevant Cement Test",
+                "description": "Test product",
+                "price": "",
+                "price_unit": "bag",
+                "video_url": "",
+                "available": "on",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(
+            CommunityNotification.objects.filter(
+                recipient=self.buyer,
+                title__icontains="Relevant Cement Test",
+            ).exists()
+        )
+        send_push.assert_not_called()
+
+    @patch("market.push_notifications.send_web_push")
     def test_unavailable_product_does_not_notify_request_buyer(
         self, send_push
     ):
